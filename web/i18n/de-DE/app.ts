@@ -77,6 +77,7 @@ const translation = {
     agentUserDescription: 'Ein intelligenter Agent, der in der Lage ist, iteratives Denken zu führen und autonome Werkzeuge zu verwenden, um Aufgabenziele zu erreichen.',
     agentShortDescription: 'Intelligenter Agent mit logischem Denken und autonomer Werkzeugnutzung',
     dropDSLToCreateApp: 'Ziehen Sie die DSL-Datei hierher, um die App zu erstellen',
+    import: 'Importieren',
   },
   editApp: 'App bearbeiten',
   editAppTitle: 'App-Informationen bearbeiten',
@@ -256,11 +257,11 @@ const translation = {
   maxActiveRequestsTip: 'Maximale Anzahl gleichzeitiger aktiver Anfragen pro App (0 für unbegrenzt)',
   gotoAnything: {
     actions: {
-      searchPlugins: 'Such-Plugins',
+      searchPlugins: 'Plugins durchsuchen',
       searchKnowledgeBases: 'Wissensdatenbanken durchsuchen',
       searchWorkflowNodes: 'Workflow-Knoten durchsuchen',
       searchKnowledgeBasesDesc: 'Suchen und navigieren Sie zu Ihren Wissensdatenbanken',
-      searchApplications: 'Anwendungen suchen',
+      searchApplications: 'Anwendungen durchsuchen',
       searchWorkflowNodesHelp: 'Diese Funktion funktioniert nur, wenn ein Workflow angezeigt wird. Navigieren Sie zuerst zu einem Workflow.',
       searchApplicationsDesc: 'Suchen und navigieren Sie zu Ihren Anwendungen',
       searchPluginsDesc: 'Suchen und navigieren Sie zu Ihren Plugins',
@@ -278,6 +279,11 @@ const translation = {
       themeDarkDesc: 'Verwenden Sie das dunkle Erscheinungsbild',
       runDesc: 'Führen Sie schnelle Befehle aus (Thema, Sprache, ...)',
       themeCategoryTitle: 'Thema',
+      slashDesc: 'Führen Sie Befehle wie /theme, /lang aus',
+      accountDesc: 'Gehe zur Kontoseite',
+      feedbackDesc: 'Offene Diskussionen zum Feedback der Gemeinschaft',
+      communityDesc: 'Offene Discord-Community',
+      docDesc: 'Öffnen Sie die Hilfedokumentation',
     },
     emptyState: {
       noPluginsFound: 'Keine Plugins gefunden',
@@ -292,6 +298,7 @@ const translation = {
       plugins: 'Plugins',
       apps: 'Apps',
       workflowNodes: 'Workflow-Knoten',
+      commands: 'Befehle',
     },
     clearToSearchAll: 'Löschen Sie @, um alle zu durchsuchen',
     searchTemporarilyUnavailable: 'Suche vorübergehend nicht verfügbar',
@@ -311,6 +318,11 @@ const translation = {
     inScope: 'in {{scope}}s',
     noMatchingCommands: 'Keine übereinstimmenden Befehle gefunden',
     tryDifferentSearch: 'Versuchen Sie es mit einem anderen Suchbegriff',
+    slashHint: 'Geben Sie / ein, um alle verfügbaren Befehle anzuzeigen.',
+    tips: 'Drücken Sie ↑↓, um zu navigieren',
+    pressEscToClose: 'Drücken Sie ESC, um zu schließen',
+    startTyping: 'Beginnen Sie mit der Eingabe, um zu suchen',
+    selectToNavigate: 'Auswählen, um zu navigieren',
   },
 }
 

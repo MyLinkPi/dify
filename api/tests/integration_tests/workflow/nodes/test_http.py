@@ -5,14 +5,12 @@ from urllib.parse import urlencode
 import pytest
 
 from core.app.entities.app_invoke_entities import InvokeFrom
-from core.workflow.entities.variable_pool import VariablePool
-from core.workflow.graph_engine.entities.graph import Graph
-from core.workflow.graph_engine.entities.graph_init_params import GraphInitParams
-from core.workflow.graph_engine.entities.graph_runtime_state import GraphRuntimeState
+from core.workflow.entities import GraphInitParams, GraphRuntimeState, VariablePool
+from core.workflow.graph import Graph
 from core.workflow.nodes.http_request.node import HttpRequestNode
+from core.workflow.nodes.node_factory import DifyNodeFactory
 from core.workflow.system_variable import SystemVariable
 from models.enums import UserFrom
-from models.workflow import WorkflowType
 from tests.integration_tests.workflow.nodes.__mock.http import setup_http_mock
 
 
@@ -25,15 +23,12 @@ def init_http_node(config: dict):
                 "target": "1",
             },
         ],
-        "nodes": [{"data": {"type": "start"}, "id": "start"}, config],
+        "nodes": [{"data": {"type": "start", "title": "Start"}, "id": "start"}, config],
     }
-
-    graph = Graph.init(graph_config=graph_config)
 
     init_params = GraphInitParams(
         tenant_id="1",
         app_id="1",
-        workflow_type=WorkflowType.WORKFLOW,
         workflow_id="1",
         graph_config=graph_config,
         user_id="1",
@@ -52,12 +47,21 @@ def init_http_node(config: dict):
     variable_pool.add(["a", "args1"], 1)
     variable_pool.add(["a", "args2"], 2)
 
+    graph_runtime_state = GraphRuntimeState(variable_pool=variable_pool, start_at=time.perf_counter())
+
+    # Create node factory
+    node_factory = DifyNodeFactory(
+        graph_init_params=init_params,
+        graph_runtime_state=graph_runtime_state,
+    )
+
+    graph = Graph.init(graph_config=graph_config, node_factory=node_factory)
+
     node = HttpRequestNode(
         id=str(uuid.uuid4()),
-        graph_init_params=init_params,
-        graph=graph,
-        graph_runtime_state=GraphRuntimeState(variable_pool=variable_pool, start_at=time.perf_counter()),
         config=config,
+        graph_init_params=init_params,
+        graph_runtime_state=graph_runtime_state,
     )
 
     # Initialize node data
@@ -73,6 +77,7 @@ def test_get(setup_http_mock):
         config={
             "id": "1",
             "data": {
+                "type": "http-request",
                 "title": "http",
                 "desc": "",
                 "method": "get",
@@ -106,6 +111,7 @@ def test_no_auth(setup_http_mock):
         config={
             "id": "1",
             "data": {
+                "type": "http-request",
                 "title": "http",
                 "desc": "",
                 "method": "get",
@@ -135,6 +141,7 @@ def test_custom_authorization_header(setup_http_mock):
         config={
             "id": "1",
             "data": {
+                "type": "http-request",
                 "title": "http",
                 "desc": "",
                 "method": "get",
@@ -160,6 +167,180 @@ def test_custom_authorization_header(setup_http_mock):
 
     assert "?A=b" in data
     assert "X-Header: 123" in data
+    # Custom authorization header should be set (may be masked)
+    assert "X-Auth:" in data
+
+
+@pytest.mark.parametrize("setup_http_mock", [["none"]], indirect=True)
+def test_custom_auth_with_empty_api_key_does_not_set_header(setup_http_mock):
+    """Test: In custom authentication mode, when the api_key is empty, no header should be set."""
+    from core.workflow.entities.variable_pool import VariablePool
+    from core.workflow.nodes.http_request.entities import (
+        HttpRequestNodeAuthorization,
+        HttpRequestNodeData,
+        HttpRequestNodeTimeout,
+    )
+    from core.workflow.nodes.http_request.executor import Executor
+    from core.workflow.system_variable import SystemVariable
+
+    # Create variable pool
+    variable_pool = VariablePool(
+        system_variables=SystemVariable(user_id="test", files=[]),
+        user_inputs={},
+        environment_variables=[],
+        conversation_variables=[],
+    )
+
+    # Create node data with custom auth and empty api_key
+    node_data = HttpRequestNodeData(
+        title="http",
+        desc="",
+        url="http://example.com",
+        method="get",
+        authorization=HttpRequestNodeAuthorization(
+            type="api-key",
+            config={
+                "type": "custom",
+                "api_key": "",  # Empty api_key
+                "header": "X-Custom-Auth",
+            },
+        ),
+        headers="",
+        params="",
+        body=None,
+        ssl_verify=True,
+    )
+
+    # Create executor
+    executor = Executor(
+        node_data=node_data, timeout=HttpRequestNodeTimeout(connect=10, read=30, write=10), variable_pool=variable_pool
+    )
+
+    # Get assembled headers
+    headers = executor._assembling_headers()
+
+    # When api_key is empty, the custom header should NOT be set
+    assert "X-Custom-Auth" not in headers
+
+
+@pytest.mark.parametrize("setup_http_mock", [["none"]], indirect=True)
+def test_bearer_authorization_with_custom_header_ignored(setup_http_mock):
+    """
+    Test that when switching from custom to bearer authorization,
+    the custom header settings don't interfere with bearer token.
+    This test verifies the fix for issue #23554.
+    """
+    node = init_http_node(
+        config={
+            "id": "1",
+            "data": {
+                "type": "http-request",
+                "title": "http",
+                "desc": "",
+                "method": "get",
+                "url": "http://example.com",
+                "authorization": {
+                    "type": "api-key",
+                    "config": {
+                        "type": "bearer",
+                        "api_key": "test-token",
+                        "header": "",  # Empty header - should default to Authorization
+                    },
+                },
+                "headers": "",
+                "params": "",
+                "body": None,
+            },
+        }
+    )
+
+    result = node._run()
+    assert result.process_data is not None
+    data = result.process_data.get("request", "")
+
+    # In bearer mode, should use Authorization header (value is masked with *)
+    assert "Authorization: " in data
+    # Should contain masked Bearer token
+    assert "*" in data
+
+
+@pytest.mark.parametrize("setup_http_mock", [["none"]], indirect=True)
+def test_basic_authorization_with_custom_header_ignored(setup_http_mock):
+    """
+    Test that when switching from custom to basic authorization,
+    the custom header settings don't interfere with basic auth.
+    This test verifies the fix for issue #23554.
+    """
+    node = init_http_node(
+        config={
+            "id": "1",
+            "data": {
+                "type": "http-request",
+                "title": "http",
+                "desc": "",
+                "method": "get",
+                "url": "http://example.com",
+                "authorization": {
+                    "type": "api-key",
+                    "config": {
+                        "type": "basic",
+                        "api_key": "user:pass",
+                        "header": "",  # Empty header - should default to Authorization
+                    },
+                },
+                "headers": "",
+                "params": "",
+                "body": None,
+            },
+        }
+    )
+
+    result = node._run()
+    assert result.process_data is not None
+    data = result.process_data.get("request", "")
+
+    # In basic mode, should use Authorization header (value is masked with *)
+    assert "Authorization: " in data
+    # Should contain masked Basic credentials
+    assert "*" in data
+
+
+@pytest.mark.parametrize("setup_http_mock", [["none"]], indirect=True)
+def test_custom_authorization_with_empty_api_key(setup_http_mock):
+    """
+    Test that custom authorization doesn't set header when api_key is empty.
+    This test verifies the fix for issue #23554.
+    """
+    node = init_http_node(
+        config={
+            "id": "1",
+            "data": {
+                "type": "http-request",
+                "title": "http",
+                "desc": "",
+                "method": "get",
+                "url": "http://example.com",
+                "authorization": {
+                    "type": "api-key",
+                    "config": {
+                        "type": "custom",
+                        "api_key": "",  # Empty api_key
+                        "header": "X-Custom-Auth",
+                    },
+                },
+                "headers": "",
+                "params": "",
+                "body": None,
+            },
+        }
+    )
+
+    result = node._run()
+    assert result.process_data is not None
+    data = result.process_data.get("request", "")
+
+    # Custom header should NOT be set when api_key is empty
+    assert "X-Custom-Auth:" not in data
 
 
 @pytest.mark.parametrize("setup_http_mock", [["none"]], indirect=True)
@@ -168,6 +349,7 @@ def test_template(setup_http_mock):
         config={
             "id": "1",
             "data": {
+                "type": "http-request",
                 "title": "http",
                 "desc": "",
                 "method": "get",
@@ -203,6 +385,7 @@ def test_json(setup_http_mock):
         config={
             "id": "1",
             "data": {
+                "type": "http-request",
                 "title": "http",
                 "desc": "",
                 "method": "post",
@@ -239,11 +422,13 @@ def test_json(setup_http_mock):
     assert "X-Header: 123" in data
 
 
+@pytest.mark.parametrize("setup_http_mock", [["none"]], indirect=True)
 def test_x_www_form_urlencoded(setup_http_mock):
     node = init_http_node(
         config={
             "id": "1",
             "data": {
+                "type": "http-request",
                 "title": "http",
                 "desc": "",
                 "method": "post",
@@ -285,11 +470,13 @@ def test_x_www_form_urlencoded(setup_http_mock):
     assert "X-Header: 123" in data
 
 
+@pytest.mark.parametrize("setup_http_mock", [["none"]], indirect=True)
 def test_form_data(setup_http_mock):
     node = init_http_node(
         config={
             "id": "1",
             "data": {
+                "type": "http-request",
                 "title": "http",
                 "desc": "",
                 "method": "post",
@@ -334,11 +521,13 @@ def test_form_data(setup_http_mock):
     assert "X-Header: 123" in data
 
 
+@pytest.mark.parametrize("setup_http_mock", [["none"]], indirect=True)
 def test_none_data(setup_http_mock):
     node = init_http_node(
         config={
             "id": "1",
             "data": {
+                "type": "http-request",
                 "title": "http",
                 "desc": "",
                 "method": "post",
@@ -366,11 +555,13 @@ def test_none_data(setup_http_mock):
     assert "123123123" not in data
 
 
+@pytest.mark.parametrize("setup_http_mock", [["none"]], indirect=True)
 def test_mock_404(setup_http_mock):
     node = init_http_node(
         config={
             "id": "1",
             "data": {
+                "type": "http-request",
                 "title": "http",
                 "desc": "",
                 "method": "get",
@@ -394,11 +585,13 @@ def test_mock_404(setup_http_mock):
     assert "Not Found" in resp.get("body", "")
 
 
+@pytest.mark.parametrize("setup_http_mock", [["none"]], indirect=True)
 def test_multi_colons_parse(setup_http_mock):
     node = init_http_node(
         config={
             "id": "1",
             "data": {
+                "type": "http-request",
                 "title": "http",
                 "desc": "",
                 "method": "get",
@@ -451,10 +644,11 @@ def test_nested_object_variable_selector(setup_http_mock):
             },
         ],
         "nodes": [
-            {"data": {"type": "start"}, "id": "start"},
+            {"data": {"type": "start", "title": "Start"}, "id": "start"},
             {
                 "id": "1",
                 "data": {
+                    "type": "http-request",
                     "title": "http",
                     "desc": "",
                     "method": "get",
@@ -475,12 +669,9 @@ def test_nested_object_variable_selector(setup_http_mock):
         ],
     }
 
-    graph = Graph.init(graph_config=graph_config)
-
     init_params = GraphInitParams(
         tenant_id="1",
         app_id="1",
-        workflow_type=WorkflowType.WORKFLOW,
         workflow_id="1",
         graph_config=graph_config,
         user_id="1",
@@ -500,12 +691,21 @@ def test_nested_object_variable_selector(setup_http_mock):
     variable_pool.add(["a", "args2"], 2)
     variable_pool.add(["a", "args3"], {"nested": "nested_value"})  # Only for this test
 
+    graph_runtime_state = GraphRuntimeState(variable_pool=variable_pool, start_at=time.perf_counter())
+
+    # Create node factory
+    node_factory = DifyNodeFactory(
+        graph_init_params=init_params,
+        graph_runtime_state=graph_runtime_state,
+    )
+
+    graph = Graph.init(graph_config=graph_config, node_factory=node_factory)
+
     node = HttpRequestNode(
         id=str(uuid.uuid4()),
-        graph_init_params=init_params,
-        graph=graph,
-        graph_runtime_state=GraphRuntimeState(variable_pool=variable_pool, start_at=time.perf_counter()),
         config=graph_config["nodes"][1],
+        graph_init_params=init_params,
+        graph_runtime_state=graph_runtime_state,
     )
 
     # Initialize node data

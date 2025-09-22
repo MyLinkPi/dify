@@ -80,6 +80,7 @@ const translation = {
     chatbotUserDescription: 'Cree rápidamente un chatbot basado en LLM con una configuración sencilla. Puedes cambiar a Chatflow más tarde.',
     completionUserDescription: 'Cree rápidamente un asistente de IA para tareas de generación de texto con una configuración sencilla.',
     dropDSLToCreateApp: 'Suelta el archivo DSL aquí para crear la aplicación',
+    import: 'Importación',
   },
   editApp: 'Editar información',
   editAppTitle: 'Editar información de la app',
@@ -254,10 +255,10 @@ const translation = {
   maxActiveRequestsTip: 'Número máximo de solicitudes activas concurrentes por aplicación (0 para ilimitado)',
   gotoAnything: {
     actions: {
-      searchApplications: 'Aplicaciones de búsqueda',
+      searchApplications: 'Buscar aplicaciones',
       searchKnowledgeBasesDesc: 'Busque y navegue por sus bases de conocimiento',
       searchWorkflowNodes: 'Buscar nodos de flujo de trabajo',
-      searchPlugins: 'Complementos de búsqueda',
+      searchPlugins: 'Buscar complementos',
       searchWorkflowNodesDesc: 'Buscar y saltar a nodos en el flujo de trabajo actual por nombre o tipo',
       searchKnowledgeBases: 'Buscar en las bases de conocimiento',
       searchApplicationsDesc: 'Buscar y navegar a sus aplicaciones',
@@ -276,6 +277,11 @@ const translation = {
       themeDarkDesc: 'Usar apariencia oscura',
       languageCategoryDesc: 'Cambiar el idioma de la interfaz',
       themeCategoryDesc: 'Cambiar el tema de la aplicación',
+      slashDesc: 'Ejecuta comandos como /tema, /idioma',
+      accountDesc: 'Navegar a la página de cuenta',
+      communityDesc: 'Abrir comunidad de Discord',
+      feedbackDesc: 'Discusiones de retroalimentación de la comunidad abierta',
+      docDesc: 'Abrir la documentación de ayuda',
     },
     emptyState: {
       noAppsFound: 'No se encontraron aplicaciones',
@@ -290,6 +296,7 @@ const translation = {
       workflowNodes: 'Nodos de flujo de trabajo',
       knowledgeBases: 'Bases de conocimiento',
       plugins: 'Complementos',
+      commands: 'Comandos',
     },
     clearToSearchAll: 'Borrar @ para buscar todo',
     noResults: 'No se han encontrado resultados',
@@ -309,6 +316,11 @@ const translation = {
     inScope: 'en {{scope}}s',
     tryDifferentSearch: 'Prueba con un término de búsqueda diferente',
     noMatchingCommands: 'No se encontraron comandos coincidentes',
+    slashHint: 'Escribe / para ver todos los comandos disponibles',
+    selectToNavigate: 'Seleccionar para navegar',
+    pressEscToClose: 'Presiona ESC para cerrar',
+    startTyping: 'Empieza a escribir para buscar',
+    tips: 'Presiona ↑↓ para navegar',
   },
 }
 
