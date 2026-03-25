@@ -1,16 +1,15 @@
 import type { FC } from 'react'
 import { RiCloseLine, RiZoomInLine, RiZoomOutLine } from '@remixicon/react'
-import { noop } from 'es-toolkit/compat'
+import { noop } from 'es-toolkit/function'
 import { t } from 'i18next'
 import * as React from 'react'
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useHotkeys } from 'react-hotkeys-hook'
-import { PdfHighlighter, PdfLoader } from 'react-pdf-highlighter'
 import Loading from '@/app/components/base/loading'
 import Tooltip from '@/app/components/base/tooltip'
 import useBreakpoints, { MediaType } from '@/hooks/use-breakpoints'
-import 'react-pdf-highlighter/dist/style.css'
+import { PdfHighlighter, PdfLoader } from './pdf-highlighter-adapter'
 
 type PdfPreviewProps = {
   url: string
@@ -77,7 +76,7 @@ const PdfPreview: FC<PdfPreviewProps> = ({
           }}
         </PdfLoader>
       </div>
-      <Tooltip popupContent={t('common.operation.zoomOut')}>
+      <Tooltip popupContent={t('operation.zoomOut', { ns: 'common' })}>
         <div
           className="absolute right-24 top-6 flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg"
           onClick={zoomOut}
@@ -85,7 +84,7 @@ const PdfPreview: FC<PdfPreviewProps> = ({
           <RiZoomOutLine className="h-4 w-4 text-gray-500" />
         </div>
       </Tooltip>
-      <Tooltip popupContent={t('common.operation.zoomIn')}>
+      <Tooltip popupContent={t('operation.zoomIn', { ns: 'common' })}>
         <div
           className="absolute right-16 top-6 flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg"
           onClick={zoomIn}
@@ -93,7 +92,7 @@ const PdfPreview: FC<PdfPreviewProps> = ({
           <RiZoomInLine className="h-4 w-4 text-gray-500" />
         </div>
       </Tooltip>
-      <Tooltip popupContent={t('common.operation.cancel')}>
+      <Tooltip popupContent={t('operation.cancel', { ns: 'common' })}>
         <div
           className="absolute right-6 top-6 flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg bg-white/8 backdrop-blur-[2px]"
           onClick={onCancel}

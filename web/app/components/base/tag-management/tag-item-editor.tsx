@@ -1,15 +1,12 @@
 import type { FC } from 'react'
 import type { Tag } from '@/app/components/base/tag-management/constant'
-import {
-  RiDeleteBinLine,
-  RiEditLine,
-} from '@remixicon/react'
+
 import { useDebounceFn } from 'ahooks'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useContext } from 'use-context-selector'
 import Confirm from '@/app/components/base/confirm'
-import { ToastContext } from '@/app/components/base/toast'
+import { ToastContext } from '@/app/components/base/toast/context'
 import Tooltip from '@/app/components/base/tooltip'
 import {
   deleteTag,
@@ -57,11 +54,11 @@ const TagItemEditor: FC<TagItemEditorProps> = ({
       ])
       setIsEditing(false)
       await updateTag(tagID, name)
-      notify({ type: 'success', message: t('common.actionMsg.modifiedSuccessfully') })
+      notify({ type: 'success', message: t('actionMsg.modifiedSuccessfully', { ns: 'common' }) })
       setName(name)
     }
     catch {
-      notify({ type: 'error', message: t('common.actionMsg.modifiedUnsuccessfully') })
+      notify({ type: 'error', message: t('actionMsg.modifiedUnsuccessfully', { ns: 'common' }) })
       setName(tag.name)
       const recoverList = tagList.map((tag) => {
         if (tag.id === tagID) {
@@ -86,7 +83,7 @@ const TagItemEditor: FC<TagItemEditorProps> = ({
     try {
       setPending(true)
       await deleteTag(tagID)
-      notify({ type: 'success', message: t('common.actionMsg.modifiedSuccessfully') })
+      notify({ type: 'success', message: t('actionMsg.modifiedSuccessfully', { ns: 'common' }) })
       const newList = tagList.filter(tag => tag.id !== tagID)
       setTagList([
         ...newList,
@@ -94,7 +91,7 @@ const TagItemEditor: FC<TagItemEditorProps> = ({
       setPending(false)
     }
     catch {
-      notify({ type: 'error', message: t('common.actionMsg.modifiedUnsuccessfully') })
+      notify({ type: 'error', message: t('actionMsg.modifiedUnsuccessfully', { ns: 'common' }) })
       setPending(false)
     }
   }
@@ -112,14 +109,14 @@ const TagItemEditor: FC<TagItemEditorProps> = ({
             </div>
             <Tooltip
               popupContent={
-                <div>{t('workflow.common.tagBound')}</div>
+                <div>{t('common.tagBound', { ns: 'workflow' })}</div>
               }
               needsDelay
             >
               <div className="leading-4.5 shrink-0 px-1 text-sm font-medium text-text-tertiary">{tag.binding_count}</div>
             </Tooltip>
             <div className="group/edit shrink-0 cursor-pointer rounded-md p-1 hover:bg-state-base-hover" onClick={() => setIsEditing(true)}>
-              <RiEditLine className="h-3 w-3 text-text-tertiary group-hover/edit:text-text-secondary" />
+              <span className="i-ri-edit-line h-3 w-3 text-text-tertiary group-hover/edit:text-text-secondary" data-testid="tag-item-editor-edit-button" />
             </div>
             <div
               className="group/remove shrink-0 cursor-pointer rounded-md p-1 hover:bg-state-base-hover"
@@ -130,7 +127,7 @@ const TagItemEditor: FC<TagItemEditorProps> = ({
                   handleRemove()
               }}
             >
-              <RiDeleteBinLine className="h-3 w-3 text-text-tertiary group-hover/remove:text-text-secondary" />
+              <span className="i-ri-delete-bin-line h-3 w-3 text-text-tertiary group-hover/remove:text-text-secondary" data-testid="tag-item-editor-remove-button" />
             </div>
           </>
         )}
@@ -146,9 +143,9 @@ const TagItemEditor: FC<TagItemEditorProps> = ({
         )}
       </div>
       <Confirm
-        title={`${t('common.tag.delete')} "${tag.name}"`}
+        title={`${t('tag.delete', { ns: 'common' })} "${tag.name}"`}
         isShow={showRemoveModal}
-        content={t('common.tag.deleteTip')}
+        content={t('tag.deleteTip', { ns: 'common' })}
         onConfirm={() => {
           handleRemove()
           setShowRemoveModal(false)

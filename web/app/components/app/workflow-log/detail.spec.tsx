@@ -19,7 +19,7 @@ import DetailPanel from './detail'
 // ============================================================================
 
 const mockRouterPush = vi.fn()
-vi.mock('next/navigation', () => ({
+vi.mock('@/next/navigation', () => ({
   useRouter: () => ({
     push: mockRouterPush,
   }),
@@ -27,7 +27,6 @@ vi.mock('next/navigation', () => ({
 
 // Mock the Run component as it has complex dependencies
 vi.mock('@/app/components/workflow/run', () => ({
-  __esModule: true,
   default: ({ runDetailUrl, tracingListUrl }: { runDetailUrl: string, tracingListUrl: string }) => (
     <div data-testid="workflow-run">
       <span data-testid="run-detail-url">{runDetailUrl}</span>

@@ -1,16 +1,15 @@
 'use client'
-import { noop } from 'es-toolkit/compat'
-import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { noop } from 'es-toolkit/function'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useContext } from 'use-context-selector'
 import Button from '@/app/components/base/button'
 import Input from '@/app/components/base/input'
-import Toast from '@/app/components/base/toast'
+import { toast } from '@/app/components/base/ui/toast'
 import { emailRegex } from '@/config'
-import I18NContext from '@/context/i18n'
+import { useLocale } from '@/context/i18n'
 import { useWebAppStore } from '@/context/web-app-context'
+import Link from '@/next/link'
+import { useRouter, useSearchParams } from '@/next/navigation'
 import { webAppLogin } from '@/service/common'
 import { fetchAccessToken } from '@/service/share'
 import { setWebAppAccessToken, setWebAppPassport } from '@/service/webapp-auth'
@@ -22,7 +21,7 @@ type MailAndPasswordAuthProps = {
 
 export default function MailAndPasswordAuth({ isEmailSetup }: MailAndPasswordAuthProps) {
   const { t } = useTranslation()
-  const { locale } = useContext(I18NContext)
+  const locale = useLocale()
   const router = useRouter()
   const searchParams = useSearchParams()
   const [showPassword, setShowPassword] = useState(false)
@@ -47,26 +46,20 @@ export default function MailAndPasswordAuth({ isEmailSetup }: MailAndPasswordAut
   const appCode = getAppCodeFromRedirectUrl()
   const handleEmailPasswordLogin = async () => {
     if (!email) {
-      Toast.notify({ type: 'error', message: t('login.error.emailEmpty') })
+      toast.error(t('error.emailEmpty', { ns: 'login' }))
       return
     }
     if (!emailRegex.test(email)) {
-      Toast.notify({
-        type: 'error',
-        message: t('login.error.emailInValid'),
-      })
+      toast.error(t('error.emailInValid', { ns: 'login' }))
       return
     }
     if (!password?.trim()) {
-      Toast.notify({ type: 'error', message: t('login.error.passwordEmpty') })
+      toast.error(t('error.passwordEmpty', { ns: 'login' }))
       return
     }
 
     if (!redirectUrl || !appCode) {
-      Toast.notify({
-        type: 'error',
-        message: t('login.error.redirectUrlMissing'),
-      })
+      toast.error(t('error.redirectUrlMissing', { ns: 'login' }))
       return
     }
     try {
@@ -83,7 +76,9 @@ export default function MailAndPasswordAuth({ isEmailSetup }: MailAndPasswordAut
         body: loginData,
       })
       if (res.result === 'success') {
-        setWebAppAccessToken(res.data.access_token)
+        if (res?.data?.access_token) {
+          setWebAppAccessToken(res.data.access_token)
+        }
 
         const { access_token } = await fetchAccessToken({
           appCode: appCode!,
@@ -93,15 +88,12 @@ export default function MailAndPasswordAuth({ isEmailSetup }: MailAndPasswordAut
         router.replace(decodeURIComponent(redirectUrl))
       }
       else {
-        Toast.notify({
-          type: 'error',
-          message: res.data,
-        })
+        toast.error(res.data)
       }
     }
     catch (e: any) {
       if (e.code === 'authentication_failed')
-        Toast.notify({ type: 'error', message: e.message })
+        toast.error(e.message)
     }
     finally {
       setIsLoading(false)
@@ -112,7 +104,7 @@ export default function MailAndPasswordAuth({ isEmailSetup }: MailAndPasswordAut
     <form onSubmit={noop}>
       <div className="mb-3">
         <label htmlFor="email" className="system-md-semibold my-2 text-text-secondary">
-          {t('login.email')}
+          {t('email', { ns: 'login' })}
         </label>
         <div className="mt-1">
           <Input
@@ -121,7 +113,7 @@ export default function MailAndPasswordAuth({ isEmailSetup }: MailAndPasswordAut
             id="email"
             type="email"
             autoComplete="email"
-            placeholder={t('login.emailPlaceholder') || ''}
+            placeholder={t('emailPlaceholder', { ns: 'login' }) || ''}
             tabIndex={1}
           />
         </div>
@@ -129,14 +121,14 @@ export default function MailAndPasswordAuth({ isEmailSetup }: MailAndPasswordAut
 
       <div className="mb-3">
         <label htmlFor="password" className="my-2 flex items-center justify-between">
-          <span className="system-md-semibold text-text-secondary">{t('login.password')}</span>
+          <span className="system-md-semibold text-text-secondary">{t('password', { ns: 'login' })}</span>
           <Link
             href={`/webapp-reset-password?${searchParams.toString()}`}
             className={`system-xs-regular ${isEmailSetup ? 'text-components-button-secondary-accent-text' : 'pointer-events-none text-components-button-secondary-accent-text-disabled'}`}
             tabIndex={isEmailSetup ? 0 : -1}
             aria-disabled={!isEmailSetup}
           >
-            {t('login.forget')}
+            {t('forget', { ns: 'login' })}
           </Link>
         </label>
         <div className="relative mt-1">
@@ -150,7 +142,7 @@ export default function MailAndPasswordAuth({ isEmailSetup }: MailAndPasswordAut
             }}
             type={showPassword ? 'text' : 'password'}
             autoComplete="current-password"
-            placeholder={t('login.passwordPlaceholder') || ''}
+            placeholder={t('passwordPlaceholder', { ns: 'login' }) || ''}
             tabIndex={2}
           />
           <div className="absolute inset-y-0 right-0 flex items-center">
@@ -173,7 +165,7 @@ export default function MailAndPasswordAuth({ isEmailSetup }: MailAndPasswordAut
           disabled={isLoading || !email || !password}
           className="w-full"
         >
-          {t('login.signBtn')}
+          {t('signBtn', { ns: 'login' })}
         </Button>
       </div>
     </form>

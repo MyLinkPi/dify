@@ -1,7 +1,7 @@
-import { useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import Button from '@/app/components/base/button'
 import { API_PREFIX } from '@/config'
+import { useSearchParams } from '@/next/navigation'
 import { getPurifyHref } from '@/utils'
 import { cn } from '@/utils/classnames'
 import style from '../page.module.css'
@@ -34,7 +34,7 @@ export default function SocialAuth(props: SocialAuthProps) {
                 cn(style.githubIcon, 'mr-2 h-5 w-5')
               }
               />
-              <span className="truncate leading-normal">{t('login.withGitHub')}</span>
+              <span className="truncate leading-normal">{t('withGitHub', { ns: 'login' })}</span>
             </>
           </Button>
         </a>
@@ -50,7 +50,7 @@ export default function SocialAuth(props: SocialAuthProps) {
                 cn(style.googleIcon, 'mr-2 h-5 w-5')
               }
               />
-              <span className="truncate leading-normal">{t('login.withGoogle')}</span>
+              <span className="truncate leading-normal">{t('withGoogle', { ns: 'login' })}</span>
             </>
           </Button>
         </a>

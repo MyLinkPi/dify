@@ -1,9 +1,8 @@
 import type { OpeningStatement } from '@/app/components/base/features/types'
 import type { InputVar } from '@/app/components/workflow/types'
 import type { PromptVariable } from '@/models/debug'
-import { RiAddLine, RiAsterisk, RiCloseLine, RiDeleteBinLine, RiDraggable } from '@remixicon/react'
 import { useBoolean } from 'ahooks'
-import { noop } from 'es-toolkit/compat'
+import { noop } from 'es-toolkit/function'
 import { produce } from 'immer'
 import * as React from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -106,7 +105,7 @@ const OpeningSettingModal = ({
       <div>
         <div className="flex items-center py-2">
           <div className="flex shrink-0 space-x-0.5 text-xs font-medium leading-[18px] text-text-tertiary">
-            <div className="uppercase">{t('appDebug.openingStatement.openingQuestion')}</div>
+            <div className="uppercase">{t('openingStatement.openingQuestion', { ns: 'appDebug' })}</div>
             <div>·</div>
             <div>
               {tempSuggestedQuestions.length}
@@ -139,11 +138,11 @@ const OpeningSettingModal = ({
                 )}
                 key={index}
               >
-                <RiDraggable className="handle h-4 w-4 cursor-grab text-text-quaternary" />
+                <span className="handle i-ri-draggable h-4 w-4 cursor-grab text-text-quaternary" />
                 <input
                   type="input"
                   value={question || ''}
-                  placeholder={t('appDebug.openingStatement.openingQuestionPlaceholder') as string}
+                  placeholder={t('openingStatement.openingQuestionPlaceholder', { ns: 'appDebug' }) as string}
                   onChange={(e) => {
                     const value = e.target.value
                     setTempSuggestedQuestions(tempSuggestedQuestions.map((item, i) => {
@@ -166,7 +165,7 @@ const OpeningSettingModal = ({
                   onMouseEnter={() => setDeletingID(index)}
                   onMouseLeave={() => setDeletingID(null)}
                 >
-                  <RiDeleteBinLine className="h-3.5 w-3.5" />
+                  <span className="i-ri-delete-bin-line h-3.5 w-3.5" data-testid={`delete-question-${question}`} />
                 </div>
               </div>
             )
@@ -175,10 +174,10 @@ const OpeningSettingModal = ({
         {tempSuggestedQuestions.length < MAX_QUESTION_NUM && (
           <div
             onClick={() => { setTempSuggestedQuestions([...tempSuggestedQuestions, '']) }}
-            className="mt-1 flex h-9 cursor-pointer items-center gap-2 rounded-lg bg-components-button-tertiary-bg px-3  text-components-button-tertiary-text hover:bg-components-button-tertiary-bg-hover"
+            className="mt-1 flex h-9 cursor-pointer items-center gap-2 rounded-lg bg-components-button-tertiary-bg px-3 text-components-button-tertiary-text hover:bg-components-button-tertiary-bg-hover"
           >
-            <RiAddLine className="h-4 w-4" />
-            <div className="system-sm-medium text-[13px]">{t('appDebug.variableConfig.addOption')}</div>
+            <span className="i-ri-add-line h-4 w-4" />
+            <div className="text-[13px] system-sm-medium">{t('variableConfig.addOption', { ns: 'appDebug' })}</div>
           </div>
         )}
       </div>
@@ -192,18 +191,32 @@ const OpeningSettingModal = ({
       className="!mt-14 !w-[640px] !max-w-none !bg-components-panel-bg-blur !p-6"
     >
       <div className="mb-6 flex items-center justify-between">
-        <div className="title-2xl-semi-bold text-text-primary">{t('appDebug.feature.conversationOpener.title')}</div>
-        <div className="cursor-pointer p-1" onClick={onCancel}><RiCloseLine className="h-4 w-4 text-text-tertiary" /></div>
+        <div className="text-text-primary title-2xl-semi-bold">{t('feature.conversationOpener.title', { ns: 'appDebug' })}</div>
+        <div
+          className="cursor-pointer p-1"
+          onClick={onCancel}
+          data-testid="close-modal"
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              onCancel()
+            }
+          }}
+        >
+          <span className="i-ri-close-line h-4 w-4 text-text-tertiary" />
+        </div>
       </div>
       <div className="mb-8 flex gap-2">
         <div className="mt-1.5 h-8 w-8 shrink-0 rounded-lg border-components-panel-border bg-util-colors-orange-dark-orange-dark-500 p-1.5">
-          <RiAsterisk className="h-5 w-5 text-text-primary-on-surface" />
+          <span className="i-ri-asterisk h-5 w-5 text-text-primary-on-surface" />
         </div>
         <div className="grow rounded-2xl border-t border-divider-subtle bg-chat-bubble-bg p-3 shadow-xs">
           <PromptEditor
             value={tempValue}
             onChange={setTempValue}
-            placeholder={t('appDebug.openingStatement.placeholder') as string}
+            placeholder={t('openingStatement.placeholder', { ns: 'appDebug' }) as string}
             variableBlock={{
               show: true,
               variables: [
@@ -228,14 +241,14 @@ const OpeningSettingModal = ({
           onClick={onCancel}
           className="mr-2"
         >
-          {t('common.operation.cancel')}
+          {t('operation.cancel', { ns: 'common' })}
         </Button>
         <Button
           variant="primary"
           onClick={() => handleSave()}
           disabled={isSaveDisabled}
         >
-          {t('common.operation.save')}
+          {t('operation.save', { ns: 'common' })}
         </Button>
       </div>
       {isShowConfirmAddVar && (

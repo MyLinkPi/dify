@@ -20,9 +20,9 @@ import type {
 import type { ModelConfig as BackendModelConfig, UserInputFormItem, VisionSettings } from '@/types/app'
 import { CodeBracketIcon } from '@heroicons/react/20/solid'
 import { useBoolean, useGetState } from 'ahooks'
-import { clone, isEqual } from 'es-toolkit/compat'
+import { clone } from 'es-toolkit/object'
+import { isEqual } from 'es-toolkit/predicate'
 import { produce } from 'immer'
-import { usePathname } from 'next/navigation'
 import * as React from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -48,7 +48,8 @@ import { FeaturesProvider } from '@/app/components/base/features'
 import NewFeaturePanel from '@/app/components/base/features/new-feature-panel'
 import Loading from '@/app/components/base/loading'
 import { FILE_EXTS } from '@/app/components/base/prompt-editor/constants'
-import Toast, { ToastContext } from '@/app/components/base/toast'
+import Toast from '@/app/components/base/toast'
+import { ToastContext } from '@/app/components/base/toast/context'
 import { ACCOUNT_SETTING_TAB } from '@/app/components/header/account-setting/constants'
 import { ModelFeatureEnum, ModelTypeEnum } from '@/app/components/header/account-setting/model-provider-page/declarations'
 import {
@@ -65,11 +66,12 @@ import { SupportUploadFileTypes } from '@/app/components/workflow/types'
 import { ANNOTATION_DEFAULT, DATASET_DEFAULT, DEFAULT_AGENT_SETTING, DEFAULT_CHAT_PROMPT_CONFIG, DEFAULT_COMPLETION_PROMPT_CONFIG } from '@/config'
 import { useAppContext } from '@/context/app-context'
 import ConfigContext from '@/context/debug-configuration'
-import { MittProvider } from '@/context/mitt-context'
+import { MittProvider } from '@/context/mitt-context-provider'
 import { useModalContext } from '@/context/modal-context'
 import { useProviderContext } from '@/context/provider-context'
 import useBreakpoints, { MediaType } from '@/hooks/use-breakpoints'
 import { PromptMode } from '@/models/debug'
+import { usePathname } from '@/next/navigation'
 import { fetchAppDetailDirect, updateAppModelConfig } from '@/service/apps'
 import { fetchDatasets } from '@/service/datasets'
 import { fetchCollectionList } from '@/service/tools'
@@ -108,7 +110,7 @@ const Configuration: FC = () => {
   const [hasFetchedDetail, setHasFetchedDetail] = useState(false)
   const isLoading = !hasFetchedDetail
   const pathname = usePathname()
-  const matched = pathname.match(/\/app\/([^/]+)/)
+  const matched = /\/app\/([^/]+)/.exec(pathname)
   const appId = (matched?.length && matched[1]) ? matched[1] : ''
   const [mode, setMode] = useState<AppModeEnum>(AppModeEnum.CHAT)
   const [publishedConfig, setPublishedConfig] = useState<PublishConfig | null>(null)
@@ -490,11 +492,11 @@ const Configuration: FC = () => {
         isAdvancedMode,
       )
       if (Object.keys(removedDetails).length)
-        Toast.notify({ type: 'warning', message: `${t('common.modelProvider.parametersInvalidRemoved')}: ${Object.entries(removedDetails).map(([k, reason]) => `${k} (${reason})`).join(', ')}` })
+        Toast.notify({ type: 'warning', message: `${t('modelProvider.parametersInvalidRemoved', { ns: 'common' })}: ${Object.entries(removedDetails).map(([k, reason]) => `${k} (${reason})`).join(', ')}` })
       setCompletionParams(filtered)
     }
     catch {
-      Toast.notify({ type: 'error', message: t('common.error') })
+      Toast.notify({ type: 'error', message: t('error', { ns: 'common' }) })
       setCompletionParams({})
     }
   }
@@ -679,7 +681,7 @@ const Configuration: FC = () => {
               const toolInCollectionList = collectionList.find(c => tool.provider_id === c.id)
               return {
                 ...tool,
-                isDeleted: res.deleted_tools?.some((deletedTool: any) => deletedTool.id === tool.id && deletedTool.tool_name === tool.tool_name) ?? false,
+                isDeleted: res.deleted_tools?.some((deletedTool: any) => deletedTool.provider_id === tool.provider_id && deletedTool.tool_name === tool.tool_name) ?? false,
                 notAuthor: toolInCollectionList?.is_team_authorization === false,
                 ...(tool.provider_type === 'builtin'
                   ? {
@@ -765,23 +767,23 @@ const Configuration: FC = () => {
     const promptVariables = modelConfig.configs.prompt_variables
 
     if (promptEmpty) {
-      notify({ type: 'error', message: t('appDebug.otherError.promptNoBeEmpty') })
+      notify({ type: 'error', message: t('otherError.promptNoBeEmpty', { ns: 'appDebug' }) })
       return
     }
     if (isAdvancedMode && mode !== AppModeEnum.COMPLETION) {
       if (modelModeType === ModelModeType.completion) {
         if (!hasSetBlockStatus.history) {
-          notify({ type: 'error', message: t('appDebug.otherError.historyNoBeEmpty') })
+          notify({ type: 'error', message: t('otherError.historyNoBeEmpty', { ns: 'appDebug' }) })
           return
         }
         if (!hasSetBlockStatus.query) {
-          notify({ type: 'error', message: t('appDebug.otherError.queryNoBeEmpty') })
+          notify({ type: 'error', message: t('otherError.queryNoBeEmpty', { ns: 'appDebug' }) })
           return
         }
       }
     }
     if (contextVarEmpty) {
-      notify({ type: 'error', message: t('appDebug.feature.dataSet.queryVariable.contextVarNotEmpty') })
+      notify({ type: 'error', message: t('feature.dataSet.queryVariable.contextVarNotEmpty', { ns: 'appDebug' }) })
       return
     }
     const postDatasets = dataSets.map(({ id }) => ({
@@ -847,7 +849,7 @@ const Configuration: FC = () => {
       modelConfig: newModelConfig,
       completionParams,
     })
-    notify({ type: 'success', message: t('common.api.success') })
+    notify({ type: 'success', message: t('api.success', { ns: 'common' }) })
 
     setCanReturnToSimpleMode(false)
     return true
@@ -964,10 +966,10 @@ const Configuration: FC = () => {
               <div className="bg-default-subtle absolute left-0 top-0 h-14 w-full">
                 <div className="flex h-14 items-center justify-between px-6">
                   <div className="flex items-center">
-                    <div className="system-xl-semibold text-text-primary">{t('appDebug.orchestrate')}</div>
+                    <div className="text-text-primary system-xl-semibold">{t('orchestrate', { ns: 'appDebug' })}</div>
                     <div className="flex h-[14px] items-center space-x-1 text-xs">
                       {isAdvancedMode && (
-                        <div className="system-xs-medium-uppercase ml-1 flex h-5 items-center rounded-md border border-components-button-secondary-border px-1.5 uppercase text-text-tertiary">{t('appDebug.promptMode.advanced')}</div>
+                        <div className="ml-1 flex h-5 items-center rounded-md border border-components-button-secondary-border px-1.5 uppercase text-text-tertiary system-xs-medium-uppercase">{t('promptMode.advanced', { ns: 'appDebug' })}</div>
                       )}
                     </div>
                   </div>
@@ -1007,7 +1009,7 @@ const Configuration: FC = () => {
                     )}
                     {isMobile && (
                       <Button className="mr-2 !h-8 !text-[13px] font-medium" onClick={showDebugPanel}>
-                        <span className="mr-1">{t('appDebug.operation.debugConfig')}</span>
+                        <span className="mr-1">{t('operation.debugConfig', { ns: 'appDebug' })}</span>
                         <CodeBracketIcon className="h-4 w-4 text-text-tertiary" />
                       </Button>
                     )}
@@ -1028,8 +1030,8 @@ const Configuration: FC = () => {
                 <Config />
               </div>
               {!isMobile && (
-                <div className="relative flex h-full w-1/2 grow flex-col overflow-y-auto " style={{ borderColor: 'rgba(0, 0, 0, 0.02)' }}>
-                  <div className="flex grow flex-col rounded-tl-2xl border-l-[0.5px] border-t-[0.5px] border-components-panel-border bg-chatbot-bg ">
+                <div className="relative flex h-full w-1/2 grow flex-col overflow-y-auto" style={{ borderColor: 'rgba(0, 0, 0, 0.02)' }}>
+                  <div className="flex grow flex-col rounded-tl-2xl border-l-[0.5px] border-t-[0.5px] border-components-panel-border bg-chatbot-bg">
                     <Debug
                       isAPIKeySet={isAPIKeySet}
                       onSetting={() => setShowAccountSettingModal({ payload: ACCOUNT_SETTING_TAB.PROVIDER })}
@@ -1049,8 +1051,8 @@ const Configuration: FC = () => {
           </div>
           {showUseGPT4Confirm && (
             <Confirm
-              title={t('appDebug.trailUseGPT4Info.title')}
-              content={t('appDebug.trailUseGPT4Info.description')}
+              title={t('trailUseGPT4Info.title', { ns: 'appDebug' })}
+              content={t('trailUseGPT4Info.description', { ns: 'appDebug' })}
               isShow={showUseGPT4Confirm}
               onConfirm={() => {
                 setShowAccountSettingModal({ payload: ACCOUNT_SETTING_TAB.PROVIDER })

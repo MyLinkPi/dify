@@ -4,9 +4,9 @@ import {
   RiPlanetFill,
   RiPlanetLine,
 } from '@remixicon/react'
-import Link from 'next/link'
-import { useSelectedLayoutSegment } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
+import Link from '@/next/link'
+import { useSelectedLayoutSegment } from '@/next/navigation'
 import { cn } from '@/utils/classnames'
 
 type ExploreNavProps = {
@@ -31,7 +31,7 @@ const ExploreNav = ({
           : <RiPlanetLine className="h-4 w-4" />
       }
       <div className="ml-2 max-[1024px]:hidden">
-        {t('common.menus.explore')}
+        {t('menus.explore', { ns: 'common' })}
       </div>
     </Link>
   )

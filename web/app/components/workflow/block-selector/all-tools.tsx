@@ -12,7 +12,6 @@ import type { ToolDefaultValue, ToolValue } from './types'
 import type { ListProps, ListRef } from '@/app/components/workflow/block-selector/market-place-plugin/list'
 import type { OnSelectBlock } from '@/app/components/workflow/types'
 import { RiArrowRightUpLine } from '@remixicon/react'
-import Link from 'next/link'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Button from '@/app/components/base/button'
@@ -21,6 +20,7 @@ import { SearchMenu } from '@/app/components/base/icons/src/vender/line/general'
 import PluginList from '@/app/components/workflow/block-selector/market-place-plugin/list'
 import { useGlobalPublicStore } from '@/context/global-public-context'
 import { useGetLanguage } from '@/context/i18n'
+import Link from '@/next/link'
 import { cn } from '@/utils/classnames'
 import { getMarketplaceUrl } from '@/utils/var'
 import { useMarketplacePlugins } from '../../plugins/marketplace/hooks'
@@ -47,7 +47,6 @@ type AllToolsProps = {
   canNotSelectMultiple?: boolean
   onSelectMultiple?: (type: BlockEnum, tools: ToolDefaultValue[]) => void
   selectedTools?: ToolValue[]
-  canChooseMCPTool?: boolean
   onTagsChange?: Dispatch<SetStateAction<string[]>>
   isInRAGPipeline?: boolean
   featuredPlugins?: Plugin[]
@@ -71,7 +70,6 @@ const AllTools = ({
   customTools,
   mcpTools = [],
   selectedTools,
-  canChooseMCPTool,
   onTagsChange,
   isInRAGPipeline = false,
   featuredPlugins = [],
@@ -249,7 +247,6 @@ const AllTools = ({
                   providerMap={providerMap}
                   onSelect={onSelect}
                   selectedTools={selectedTools}
-                  canChooseMCPTool={canChooseMCPTool}
                   isLoading={featuredLoading}
                   onInstallSuccess={async () => {
                     await onFeaturedInstallSuccess?.()
@@ -263,7 +260,7 @@ const AllTools = ({
             {hasToolsListContent && (
               <>
                 <div className="px-3 pb-1 pt-2">
-                  <span className="system-xs-medium text-text-primary">{t('tools.allTools')}</span>
+                  <span className="system-xs-medium text-text-primary">{t('allTools', { ns: 'tools' })}</span>
                 </div>
                 <Tools
                   className={toolContentClassName}
@@ -275,7 +272,6 @@ const AllTools = ({
                   viewType={isSupportGroupView ? activeView : ViewType.flat}
                   hasSearchText={hasSearchText}
                   selectedTools={selectedTools}
-                  canChooseMCPTool={canChooseMCPTool}
                 />
               </>
             )}
@@ -297,7 +293,7 @@ const AllTools = ({
             <div className="flex h-full flex-col items-center justify-center gap-3 py-12 text-center">
               <SearchMenu className="h-8 w-8 text-text-quaternary" />
               <div className="text-sm font-medium text-text-secondary">
-                {t('workflow.tabs.noPluginsFound')}
+                {t('tabs.noPluginsFound', { ns: 'workflow' })}
               </div>
               <Link
                 href="https://github.com/langgenius/dify-plugins/issues/new?template=plugin_request.yaml"
@@ -308,7 +304,7 @@ const AllTools = ({
                   variant="secondary-accent"
                   className="h-6 cursor-pointer px-3 text-xs"
                 >
-                  {t('workflow.tabs.requestToCommunity')}
+                  {t('tabs.requestToCommunity', { ns: 'workflow' })}
                 </Button>
               </Link>
             </div>
@@ -320,7 +316,7 @@ const AllTools = ({
             href={getMarketplaceUrl('', { category: PluginCategoryEnum.tool })}
             target="_blank"
           >
-            <span>{t('plugin.findMoreInMarketplace')}</span>
+            <span>{t('findMoreInMarketplace', { ns: 'plugin' })}</span>
             <RiArrowRightUpLine className="ml-0.5 h-3 w-3" />
           </Link>
         )}

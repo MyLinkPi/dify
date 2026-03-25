@@ -1,16 +1,16 @@
 'use client'
 import type { FormEvent } from 'react'
 import { RiArrowLeftLine, RiMailSendFill } from '@remixicon/react'
-import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useContext } from 'use-context-selector'
 import { trackEvent } from '@/app/components/base/amplitude'
 import Button from '@/app/components/base/button'
 import Input from '@/app/components/base/input'
-import Toast from '@/app/components/base/toast'
+import { toast } from '@/app/components/base/ui/toast'
 import Countdown from '@/app/components/signin/countdown'
-import I18NContext from '@/context/i18n'
+import { useLocale } from '@/context/i18n'
+
+import { useRouter, useSearchParams } from '@/next/navigation'
 import { emailLoginWithCode, sendEMailLoginCode } from '@/service/common'
 import { encryptVerificationCode } from '@/utils/encryption'
 import { resolvePostLoginRedirect } from '../utils/post-login-redirect'
@@ -25,23 +25,17 @@ export default function CheckCode() {
   const language = i18n.language
   const [code, setVerifyCode] = useState('')
   const [loading, setIsLoading] = useState(false)
-  const { locale } = useContext(I18NContext)
+  const locale = useLocale()
   const codeInputRef = useRef<HTMLInputElement>(null)
 
   const verify = async () => {
     try {
       if (!code.trim()) {
-        Toast.notify({
-          type: 'error',
-          message: t('login.checkCode.emptyCode'),
-        })
+        toast.error(t('checkCode.emptyCode', { ns: 'login' }))
         return
       }
       if (!/\d{6}/.test(code)) {
-        Toast.notify({
-          type: 'error',
-          message: t('login.checkCode.invalidCode'),
-        })
+        toast.error(t('checkCode.invalidCode', { ns: 'login' }))
         return
       }
       setIsLoading(true)
@@ -57,7 +51,7 @@ export default function CheckCode() {
           router.replace(`/signin/invite-settings?${searchParams.toString()}`)
         }
         else {
-          const redirectUrl = resolvePostLoginRedirect(searchParams)
+          const redirectUrl = resolvePostLoginRedirect()
           router.replace(redirectUrl || '/apps')
         }
       }
@@ -95,19 +89,19 @@ export default function CheckCode() {
         <RiMailSendFill className="h-6 w-6 text-2xl text-text-accent-light-mode-only" />
       </div>
       <div className="pb-4 pt-2">
-        <h2 className="title-4xl-semi-bold text-text-primary">{t('login.checkCode.checkYourEmail')}</h2>
-        <p className="body-md-regular mt-2 text-text-secondary">
+        <h2 className="text-text-primary title-4xl-semi-bold">{t('checkCode.checkYourEmail', { ns: 'login' })}</h2>
+        <p className="mt-2 text-text-secondary body-md-regular">
           <span>
-            {t('login.checkCode.tipsPrefix')}
+            {t('checkCode.tipsPrefix', { ns: 'login' })}
             <strong>{email}</strong>
           </span>
           <br />
-          {t('login.checkCode.validTime')}
+          {t('checkCode.validTime', { ns: 'login' })}
         </p>
       </div>
 
       <form onSubmit={handleSubmit}>
-        <label htmlFor="code" className="system-md-semibold mb-1 text-text-secondary">{t('login.checkCode.verificationCode')}</label>
+        <label htmlFor="code" className="mb-1 text-text-secondary system-md-semibold">{t('checkCode.verificationCode', { ns: 'login' })}</label>
         <Input
           ref={codeInputRef}
           id="code"
@@ -115,9 +109,9 @@ export default function CheckCode() {
           onChange={e => setVerifyCode(e.target.value)}
           maxLength={6}
           className="mt-1"
-          placeholder={t('login.checkCode.verificationCodePlaceholder') as string}
+          placeholder={t('checkCode.verificationCodePlaceholder', { ns: 'login' }) as string}
         />
-        <Button type="submit" loading={loading} disabled={loading} className="my-3 w-full" variant="primary">{t('login.checkCode.verify')}</Button>
+        <Button type="submit" loading={loading} disabled={loading} className="my-3 w-full" variant="primary">{t('checkCode.verify', { ns: 'login' })}</Button>
         <Countdown onResend={resendCode} />
       </form>
       <div className="py-2">
@@ -127,7 +121,7 @@ export default function CheckCode() {
         <div className="inline-block rounded-full bg-background-default-dimmed p-1">
           <RiArrowLeftLine size={12} />
         </div>
-        <span className="system-xs-regular ml-2">{t('login.back')}</span>
+        <span className="ml-2 system-xs-regular">{t('back', { ns: 'login' })}</span>
       </div>
     </div>
   )

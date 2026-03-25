@@ -28,16 +28,16 @@ const ScoreSlider: FC<Props> = ({
           onChange={onChange}
         />
       </div>
-      <div className="system-xs-semibold-uppercase mt-[10px] flex items-center justify-between">
+      <div className="mt-[10px] flex items-center justify-between system-xs-semibold-uppercase">
         <div className="flex space-x-1 text-util-colors-cyan-cyan-500">
           <div>0.8</div>
           <div>·</div>
-          <div>{t('appDebug.feature.annotation.scoreThreshold.easyMatch')}</div>
+          <div>{t('feature.annotation.scoreThreshold.easyMatch', { ns: 'appDebug' })}</div>
         </div>
         <div className="flex space-x-1 text-util-colors-blue-blue-500">
           <div>1.0</div>
           <div>·</div>
-          <div>{t('appDebug.feature.annotation.scoreThreshold.accurateMatch')}</div>
+          <div>{t('feature.annotation.scoreThreshold.accurateMatch', { ns: 'appDebug' })}</div>
         </div>
       </div>
     </div>

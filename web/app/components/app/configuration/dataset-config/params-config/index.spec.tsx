@@ -3,7 +3,7 @@ import type { DatasetConfigs } from '@/models/debug'
 import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import * as React from 'react'
-import Toast from '@/app/components/base/toast'
+import { toast } from '@/app/components/base/ui/toast'
 import {
   useCurrentProviderAndModel,
   useModelListAndDefaultModelAndCurrentProviderAndModel,
@@ -65,19 +65,17 @@ vi.mock('@/app/components/header/account-setting/model-provider-page/model-selec
   )
 
   return {
-    __esModule: true,
     default: MockModelSelector,
   }
 })
 
 vi.mock('@/app/components/header/account-setting/model-provider-page/model-parameter-modal', () => ({
-  __esModule: true,
   default: () => <div data-testid="model-parameter-modal" />,
 }))
 
 const mockedUseModelListAndDefaultModelAndCurrentProviderAndModel = useModelListAndDefaultModelAndCurrentProviderAndModel as MockedFunction<typeof useModelListAndDefaultModelAndCurrentProviderAndModel>
 const mockedUseCurrentProviderAndModel = useCurrentProviderAndModel as MockedFunction<typeof useCurrentProviderAndModel>
-let toastNotifySpy: MockInstance
+let toastErrorSpy: MockInstance
 
 const createDatasetConfigs = (overrides: Partial<DatasetConfigs> = {}): DatasetConfigs => {
   return {
@@ -142,7 +140,7 @@ describe('dataset-config/params-config', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     vi.useRealTimers()
-    toastNotifySpy = vi.spyOn(Toast, 'notify').mockImplementation(() => ({}))
+    toastErrorSpy = vi.spyOn(toast, 'error').mockImplementation(() => '')
     mockedUseModelListAndDefaultModelAndCurrentProviderAndModel.mockReturnValue({
       modelList: [],
       defaultModel: undefined,
@@ -156,7 +154,7 @@ describe('dataset-config/params-config', () => {
   })
 
   afterEach(() => {
-    toastNotifySpy.mockRestore()
+    toastErrorSpy.mockRestore()
   })
 
   // Rendering tests (REQUIRED)
@@ -182,12 +180,12 @@ describe('dataset-config/params-config', () => {
       const dialog = await screen.findByRole('dialog', {}, { timeout: 3000 })
       const dialogScope = within(dialog)
 
-      const incrementButtons = dialogScope.getAllByRole('button', { name: 'increment' })
+      const incrementButtons = dialogScope.getAllByRole('button', { name: /increment/i })
       await user.click(incrementButtons[0])
 
       await waitFor(() => {
-        const [topKInput] = dialogScope.getAllByRole('spinbutton')
-        expect(topKInput).toHaveValue(5)
+        const [topKInput] = dialogScope.getAllByRole('textbox')
+        expect(topKInput).toHaveValue('5')
       })
 
       await user.click(dialogScope.getByRole('button', { name: 'common.operation.save' }))
@@ -199,10 +197,10 @@ describe('dataset-config/params-config', () => {
       await user.click(screen.getByRole('button', { name: 'dataset.retrievalSettings' }))
       const reopenedDialog = await screen.findByRole('dialog', {}, { timeout: 3000 })
       const reopenedScope = within(reopenedDialog)
-      const [reopenedTopKInput] = reopenedScope.getAllByRole('spinbutton')
+      const [reopenedTopKInput] = reopenedScope.getAllByRole('textbox')
 
       // Assert
-      expect(reopenedTopKInput).toHaveValue(5)
+      expect(reopenedTopKInput).toHaveValue('5')
     })
 
     it('should discard changes when cancel is clicked', async () => {
@@ -215,12 +213,12 @@ describe('dataset-config/params-config', () => {
       const dialog = await screen.findByRole('dialog', {}, { timeout: 3000 })
       const dialogScope = within(dialog)
 
-      const incrementButtons = dialogScope.getAllByRole('button', { name: 'increment' })
+      const incrementButtons = dialogScope.getAllByRole('button', { name: /increment/i })
       await user.click(incrementButtons[0])
 
       await waitFor(() => {
-        const [topKInput] = dialogScope.getAllByRole('spinbutton')
-        expect(topKInput).toHaveValue(5)
+        const [topKInput] = dialogScope.getAllByRole('textbox')
+        expect(topKInput).toHaveValue('5')
       })
 
       const cancelButton = await dialogScope.findByRole('button', { name: 'common.operation.cancel' })
@@ -233,10 +231,10 @@ describe('dataset-config/params-config', () => {
       await user.click(screen.getByRole('button', { name: 'dataset.retrievalSettings' }))
       const reopenedDialog = await screen.findByRole('dialog', {}, { timeout: 3000 })
       const reopenedScope = within(reopenedDialog)
-      const [reopenedTopKInput] = reopenedScope.getAllByRole('spinbutton')
+      const [reopenedTopKInput] = reopenedScope.getAllByRole('textbox')
 
       // Assert
-      expect(reopenedTopKInput).toHaveValue(4)
+      expect(reopenedTopKInput).toHaveValue('4')
     })
 
     it('should prevent saving when rerank model is required but invalid', async () => {
@@ -256,10 +254,7 @@ describe('dataset-config/params-config', () => {
       await user.click(dialogScope.getByRole('button', { name: 'common.operation.save' }))
 
       // Assert
-      expect(toastNotifySpy).toHaveBeenCalledWith({
-        type: 'error',
-        message: 'appDebug.datasetConfig.rerankModelRequired',
-      })
+      expect(toastErrorSpy).toHaveBeenCalledWith('appDebug.datasetConfig.rerankModelRequired')
       expect(screen.getByRole('dialog')).toBeInTheDocument()
     })
   })

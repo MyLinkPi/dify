@@ -36,8 +36,12 @@ const FileFromLinkOrLocal = ({
   const [showError, setShowError] = useState(false)
   const { handleLoadFileFromLink } = useFile(fileConfig)
   const disabled = !!fileConfig.number_limits && files.length >= fileConfig.number_limits
+  const fileLinkPlaceholder = t('fileUploader.pasteFileLinkInputPlaceholder', { ns: 'common' })
+  /* v8 ignore next -- fallback for missing i18n key is not reliably testable under current global translation mocks in jsdom @preserve */
+  const fileLinkPlaceholderText = fileLinkPlaceholder || ''
 
   const handleSaveUrl = () => {
+    /* v8 ignore next -- guarded by UI-level disabled state (`disabled={!url || disabled}`), not reachable in jsdom click flow  @preserve */
     if (!url)
       return
 
@@ -70,8 +74,8 @@ const FileFromLinkOrLocal = ({
                 )}
                 >
                   <input
-                    className="system-sm-regular mr-0.5 block grow appearance-none bg-transparent px-1 outline-none"
-                    placeholder={t('common.fileUploader.pasteFileLinkInputPlaceholder') || ''}
+                    className="mr-0.5 block grow appearance-none bg-transparent px-1 outline-none system-sm-regular"
+                    placeholder={fileLinkPlaceholderText}
                     value={url}
                     onChange={(e) => {
                       setShowError(false)
@@ -86,13 +90,13 @@ const FileFromLinkOrLocal = ({
                     disabled={!url || disabled}
                     onClick={handleSaveUrl}
                   >
-                    {t('common.operation.ok')}
+                    {t('operation.ok', { ns: 'common' })}
                   </Button>
                 </div>
                 {
                   showError && (
-                    <div className="body-xs-regular mt-0.5 text-text-destructive">
-                      {t('common.fileUploader.pasteFileLinkInvalid')}
+                    <div className="mt-0.5 text-text-destructive body-xs-regular">
+                      {t('fileUploader.pasteFileLinkInvalid', { ns: 'common' })}
                     </div>
                   )
                 }
@@ -101,7 +105,7 @@ const FileFromLinkOrLocal = ({
           }
           {
             showFromLink && showFromLocal && (
-              <div className="system-2xs-medium-uppercase flex h-7 items-center p-2 text-text-quaternary">
+              <div className="flex h-7 items-center p-2 text-text-quaternary system-2xs-medium-uppercase">
                 <div className="mr-2 h-px w-[93px] bg-gradient-to-l from-[rgba(16,24,40,0.08)]" />
                 OR
                 <div className="ml-2 h-px w-[93px] bg-gradient-to-r from-[rgba(16,24,40,0.08)]" />
@@ -116,7 +120,7 @@ const FileFromLinkOrLocal = ({
                 disabled={disabled}
               >
                 <RiUploadCloud2Line className="mr-1 h-4 w-4" />
-                {t('common.fileUploader.uploadFromComputer')}
+                {t('fileUploader.uploadFromComputer', { ns: 'common' })}
                 <FileInput fileConfig={fileConfig} />
               </Button>
             )

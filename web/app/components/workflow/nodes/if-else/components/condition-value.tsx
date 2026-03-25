@@ -35,7 +35,7 @@ const ConditionValue = ({
   const { t } = useTranslation()
   const nodes = useNodes()
   const variableName = labelName || (isSystemVar(variableSelector) ? variableSelector.slice(0).join('.') : variableSelector.slice(1).join('.'))
-  const operatorName = isComparisonOperatorNeedTranslate(operator) ? t(`workflow.nodes.ifElse.comparisonOperator.${operator}` as any) as string : operator
+  const operatorName = isComparisonOperatorNeedTranslate(operator) ? t(`nodes.ifElse.comparisonOperator.${operator}`, { ns: 'workflow' }) : operator
   const notHasValue = comparisonOperatorNotRequireValue(operator)
   const node: Node<CommonNodeType> | undefined = nodes.find(n => n.id === variableSelector[0]) as Node<CommonNodeType>
   const isException = isExceptionVariable(variableName, node?.data.type)
@@ -63,7 +63,7 @@ const ConditionValue = ({
     if (isSelect) {
       const name = [...FILE_TYPE_OPTIONS, ...TRANSFER_METHOD].filter(item => item.value === (Array.isArray(value) ? value[0] : value))[0]
       return name
-        ? (t(`workflow.nodes.ifElse.optionName.${name.i18nKey}` as any) as string).replace(/\{\{#([^#]*)#\}\}/g, (a, b) => {
+        ? t(`nodes.ifElse.optionName.${name.i18nKey}`, { ns: 'workflow' }).replace(/\{\{#([^#]*)#\}\}/g, (a, b) => {
             const arr: string[] = b.split('.')
             if (isSystemVar(arr))
               return `{{${b}}}`
@@ -76,14 +76,14 @@ const ConditionValue = ({
   }, [isSelect, t, value])
 
   return (
-    <div className="flex h-6 items-center rounded-md bg-workflow-block-parma-bg px-1">
+    <div className="flex flex-wrap items-center rounded-md bg-workflow-block-parma-bg">
       <VariableLabelInText
-        className="w-0 grow"
+        className="flex min-w-0 shrink-0 items-center border-none bg-transparent shadow-none"
         variables={variableSelector}
         nodeTitle={node?.data.title}
         nodeType={node?.data.type}
         isExceptionVariable={isException}
-        notShowFullPath
+        notShowFullPath={false}
       />
       <div
         className="mx-1 shrink-0 text-xs font-medium text-text-primary"
@@ -93,7 +93,7 @@ const ConditionValue = ({
       </div>
       {
         !notHasValue && (
-          <div className="shrink-[3] truncate text-xs text-text-secondary" title={formatValue}>{isSelect ? selectName : formatValue}</div>
+          <div className="grow truncate px-1.5 text-xs leading-6 text-text-secondary" title={formatValue}>{isSelect ? selectName : formatValue}</div>
         )
       }
     </div>

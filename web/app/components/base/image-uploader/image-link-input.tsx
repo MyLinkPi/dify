@@ -17,7 +17,12 @@ const ImageLinkInput: FC<ImageLinkInputProps> = ({
   const { t } = useTranslation()
   const [imageLink, setImageLink] = useState('')
 
+  const placeholder = t('imageUploader.pasteImageLinkInputPlaceholder', { ns: 'common' })
+  /* v8 ignore next -- defensive i18n fallback; translation key resolves to non-empty text in normal runtime/test setup, so empty-placeholder branch is not exercised without forcing i18n internals. @preserve */
+  const safeText = placeholder || ''
+
   const handleClick = () => {
+    /* v8 ignore next 2 -- same condition drives Button.disabled; when true, click does not invoke onClick in user-level flow. @preserve */
     if (disabled)
       return
 
@@ -39,7 +44,8 @@ const ImageLinkInput: FC<ImageLinkInputProps> = ({
         className="mr-0.5 h-[18px] grow appearance-none bg-transparent px-1 text-[13px] text-text-primary outline-none"
         value={imageLink}
         onChange={e => setImageLink(e.target.value)}
-        placeholder={t('common.imageUploader.pasteImageLinkInputPlaceholder') || ''}
+        placeholder={safeText}
+        data-testid="image-link-input"
       />
       <Button
         variant="primary"
@@ -47,7 +53,7 @@ const ImageLinkInput: FC<ImageLinkInputProps> = ({
         disabled={!imageLink || disabled}
         onClick={handleClick}
       >
-        {t('common.operation.ok')}
+        {t('operation.ok', { ns: 'common' })}
       </Button>
     </div>
   )

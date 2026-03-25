@@ -39,9 +39,10 @@ const removeEndThink = (children: any): any => {
 
 const useThinkTimer = (children: any) => {
   const { isResponding } = useChatContext()
+  const endThinkDetected = hasEndThink(children)
   const [startTime] = useState(() => Date.now())
   const [elapsedTime, setElapsedTime] = useState(0)
-  const [isComplete, setIsComplete] = useState(false)
+  const [isComplete, setIsComplete] = useState(() => endThinkDetected)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
@@ -59,9 +60,12 @@ const useThinkTimer = (children: any) => {
   }, [startTime, isComplete])
 
   useEffect(() => {
-    if (hasEndThink(children) || !isResponding)
+    // Stop timer when:
+    // 1. Content has [ENDTHINKFLAG] marker (normal completion)
+    // 2. isResponding is not true (false = user clicked stop, undefined = historical conversation)
+    if (endThinkDetected || !isResponding)
       setIsComplete(true)
-  }, [children, isResponding])
+  }, [endThinkDetected, isResponding])
 
   return { elapsedTime, isComplete }
 }
@@ -101,7 +105,7 @@ const ThinkBlock = ({ children, ...props }: ThinkBlockProps) => {
               d="M9 5l7 7-7 7"
             />
           </svg>
-          {isComplete ? `${t('common.chat.thought')}(${elapsedTime.toFixed(1)}s)` : `${t('common.chat.thinking')}(${elapsedTime.toFixed(1)}s)`}
+          {isComplete ? `${t('chat.thought', { ns: 'common' })}(${elapsedTime.toFixed(1)}s)` : `${t('chat.thinking', { ns: 'common' })}(${elapsedTime.toFixed(1)}s)`}
         </div>
       </summary>
       <div className="ml-2 border-l border-components-panel-border bg-components-panel-bg-alt p-3 text-text-secondary">

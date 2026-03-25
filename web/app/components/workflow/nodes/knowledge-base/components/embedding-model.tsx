@@ -17,12 +17,14 @@ type EmbeddingModelProps = {
     embeddingModel: string
     embeddingModelProvider: string
   }) => void
+  warningDot?: boolean
   readonly?: boolean
 }
 const EmbeddingModel = ({
   embeddingModel,
   embeddingModelProvider,
   onEmbeddingModelChange,
+  warningDot = false,
   readonly = false,
 }: EmbeddingModelProps) => {
   const { t } = useTranslation()
@@ -49,7 +51,8 @@ const EmbeddingModel = ({
   return (
     <Field
       fieldTitleProps={{
-        title: t('datasetSettings.form.embeddingModel'),
+        title: t('form.embeddingModel', { ns: 'datasetSettings' }),
+        warningDot,
       }}
     >
       <ModelSelector

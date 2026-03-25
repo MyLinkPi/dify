@@ -8,7 +8,7 @@ import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useContext } from 'use-context-selector'
 import Switch from '@/app/components/base/switch'
-import { ToastContext } from '@/app/components/base/toast'
+import { ToastContext } from '@/app/components/base/toast/context'
 import Tooltip from '@/app/components/base/tooltip'
 import Indicator from '@/app/components/header/indicator'
 import { useDocumentDelete, useDocumentDisable, useDocumentEnable } from '@/service/knowledge/use-document'
@@ -72,10 +72,10 @@ const StatusItem = ({
     }
     const [e] = await asyncRunSafe<CommonResponse>(opApi({ datasetId, documentId: id }) as Promise<CommonResponse>)
     if (!e) {
-      notify({ type: 'success', message: t('common.actionMsg.modifiedSuccessfully') })
+      notify({ type: 'success', message: t('actionMsg.modifiedSuccessfully', { ns: 'common' }) })
       onUpdate?.(operationName)
     }
-    else { notify({ type: 'error', message: t('common.actionMsg.modifiedUnsuccessfully') }) }
+    else { notify({ type: 'error', message: t('actionMsg.modifiedUnsuccessfully', { ns: 'common' }) }) }
   }
 
   const { run: handleSwitch } = useDebounceFn((operationName: OperationName) => {
@@ -114,12 +114,12 @@ const StatusItem = ({
         scene === 'detail' && (
           <div className="ml-1.5 flex items-center justify-between">
             <Tooltip
-              popupContent={t('datasetDocuments.list.action.enableWarning')}
+              popupContent={t('list.action.enableWarning', { ns: 'datasetDocuments' })}
               popupClassName="text-text-secondary system-xs-medium"
               disabled={!archived}
             >
               <Switch
-                defaultValue={archived ? false : enabled}
+                value={archived ? false : enabled}
                 onChange={v => !archived && handleSwitch(v ? 'enable' : 'disable')}
                 disabled={embedding || archived}
                 size="md"

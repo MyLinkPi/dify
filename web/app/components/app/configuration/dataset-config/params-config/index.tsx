@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { useContext } from 'use-context-selector'
 import Button from '@/app/components/base/button'
 import Modal from '@/app/components/base/modal'
-import Toast from '@/app/components/base/toast'
+import { toast } from '@/app/components/base/ui/toast'
 import { ModelTypeEnum } from '@/app/components/header/account-setting/model-provider-page/declarations'
 import { useCurrentProviderAndModel, useModelListAndDefaultModelAndCurrentProviderAndModel } from '@/app/components/header/account-setting/model-provider-page/hooks'
 import {
@@ -61,16 +61,12 @@ const ParamsConfig = ({
     if (tempDataSetConfigs.retrieval_model === RETRIEVE_TYPE.multiWay) {
       if (tempDataSetConfigs.reranking_enable
         && tempDataSetConfigs.reranking_mode === RerankingModeEnum.RerankingModel
-        && !isCurrentRerankModelValid
-      ) {
-        errMsg = t('appDebug.datasetConfig.rerankModelRequired')
+        && !isCurrentRerankModelValid) {
+        errMsg = t('datasetConfig.rerankModelRequired', { ns: 'appDebug' })
       }
     }
     if (errMsg) {
-      Toast.notify({
-        type: 'error',
-        message: errMsg,
-      })
+      toast.error(errMsg)
     }
     return !errMsg
   }
@@ -123,7 +119,7 @@ const ParamsConfig = ({
         disabled={disabled}
       >
         <RiEqualizer2Line className="mr-1 h-3.5 w-3.5" />
-        {t('dataset.retrievalSettings')}
+        {t('retrievalSettings', { ns: 'dataset' })}
       </Button>
       {
         rerankSettingModalOpen && (
@@ -148,9 +144,9 @@ const ParamsConfig = ({
                   setRerankSettingModalOpen(false)
                 }}
               >
-                {t('common.operation.cancel')}
+                {t('operation.cancel', { ns: 'common' })}
               </Button>
-              <Button variant="primary" className="shrink-0" onClick={handleSave}>{t('common.operation.save')}</Button>
+              <Button variant="primary" className="shrink-0" onClick={handleSave}>{t('operation.save', { ns: 'common' })}</Button>
             </div>
           </Modal>
         )

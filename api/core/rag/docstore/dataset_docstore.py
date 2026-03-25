@@ -1,11 +1,14 @@
+from __future__ import annotations
+
 from collections.abc import Sequence
 from typing import Any
 
 from sqlalchemy import func, select
 
 from core.model_manager import ModelManager
-from core.model_runtime.entities.model_entities import ModelType
+from core.rag.index_processor.constant.index_type import IndexTechniqueType
 from core.rag.models.document import AttachmentDocument, Document
+from dify_graph.model_runtime.entities.model_entities import ModelType
 from extensions.ext_database import db
 from models.dataset import ChildChunk, Dataset, DocumentSegment, SegmentAttachmentBinding
 
@@ -22,7 +25,7 @@ class DatasetDocumentStore:
         self._document_id = document_id
 
     @classmethod
-    def from_dict(cls, config_dict: dict[str, Any]) -> "DatasetDocumentStore":
+    def from_dict(cls, config_dict: dict[str, Any]) -> DatasetDocumentStore:
         return cls(**config_dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -69,7 +72,7 @@ class DatasetDocumentStore:
         if max_position is None:
             max_position = 0
         embedding_model = None
-        if self._dataset.indexing_technique == "high_quality":
+        if self._dataset.indexing_technique == IndexTechniqueType.HIGH_QUALITY:
             model_manager = ModelManager()
             embedding_model = model_manager.get_model_instance(
                 tenant_id=self._dataset.tenant_id,

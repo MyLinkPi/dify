@@ -34,6 +34,7 @@ const ConversationOpener = ({
   const featuresStore = useFeaturesStore()
   const [isHovering, setIsHovering] = useState(false)
   const handleOpenOpeningModal = useCallback(() => {
+    /* v8 ignore next -- guarded path is not reachable in tests with a real disabled button because click is prevented at DOM level. @preserve */
     if (disabled)
       return
     const {
@@ -86,7 +87,7 @@ const ConversationOpener = ({
           <LoveMessage className="h-4 w-4 text-text-primary-on-surface" />
         </div>
       )}
-      title={t('appDebug.feature.conversationOpener.title')}
+      title={t('feature.conversationOpener.title', { ns: 'appDebug' })}
       value={!!opening?.enabled}
       onChange={state => handleChange(FeatureEnum.opening, state)}
       onMouseEnter={() => setIsHovering(true)}
@@ -95,19 +96,19 @@ const ConversationOpener = ({
     >
       <>
         {!opening?.enabled && (
-          <div className="system-xs-regular line-clamp-2 min-h-8 text-text-tertiary">{t('appDebug.feature.conversationOpener.description')}</div>
+          <div className="line-clamp-2 min-h-8 text-text-tertiary system-xs-regular">{t('feature.conversationOpener.description', { ns: 'appDebug' })}</div>
         )}
         {!!opening?.enabled && (
           <>
             {!isHovering && (
-              <div className="system-xs-regular line-clamp-2 min-h-8 text-text-tertiary">
-                {opening.opening_statement || t('appDebug.openingStatement.placeholder')}
+              <div className="line-clamp-2 min-h-8 text-text-tertiary system-xs-regular">
+                {opening.opening_statement || t('openingStatement.placeholder', { ns: 'appDebug' })}
               </div>
             )}
             {isHovering && (
               <Button className="w-full" onClick={handleOpenOpeningModal} disabled={disabled}>
                 <RiEditLine className="mr-1 h-4 w-4" />
-                {t('appDebug.openingStatement.writeOpener')}
+                {t('openingStatement.writeOpener', { ns: 'appDebug' })}
               </Button>
             )}
           </>

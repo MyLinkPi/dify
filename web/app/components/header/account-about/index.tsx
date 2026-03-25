@@ -2,14 +2,14 @@
 import type { LangGeniusVersionResponse } from '@/models/common'
 import { RiCloseLine } from '@remixicon/react'
 import dayjs from 'dayjs'
-import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
 import Button from '@/app/components/base/button'
 import DifyLogo from '@/app/components/base/logo/dify-logo'
 import Modal from '@/app/components/base/modal'
 import { IS_CE_EDITION } from '@/config'
-
 import { useGlobalPublicStore } from '@/context/global-public-context'
+
+import Link from '@/next/link'
 
 type IAccountSettingProps = {
   langGeniusVersionInfo: LangGeniusVersionResponse
@@ -76,8 +76,8 @@ export default function AccountAbout({
           <div className="text-xs font-medium text-text-tertiary">
             {
               isLatest
-                ? t('common.about.latestAvailable', { version: langGeniusVersionInfo.latest_version })
-                : t('common.about.nowAvailable', { version: langGeniusVersionInfo.latest_version })
+                ? t('about.latestAvailable', { ns: 'common', version: langGeniusVersionInfo.latest_version })
+                : t('about.nowAvailable', { ns: 'common', version: langGeniusVersionInfo.latest_version })
             }
           </div>
           <div className="flex items-center">
@@ -87,7 +87,7 @@ export default function AccountAbout({
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {t('common.about.changeLog')}
+                {t('about.changeLog', { ns: 'common' })}
               </Link>
             </Button>
             {
@@ -98,7 +98,7 @@ export default function AccountAbout({
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    {t('common.about.updateNow')}
+                    {t('about.updateNow', { ns: 'common' })}
                   </Link>
                 </Button>
               )

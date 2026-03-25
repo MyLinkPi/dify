@@ -4,7 +4,7 @@ import { useBoolean } from 'ahooks'
 import { produce } from 'immer'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import Toast from '@/app/components/base/toast'
+import { toast } from '@/app/components/base/ui/toast'
 import {
   useIsChatMode,
   useNodesReadOnly,
@@ -85,22 +85,19 @@ const useConfig = (id: string, payload: StartNodeType) => {
       draft.variables.push(payload)
     })
     const newList = newInputs.variables
-    let errorMsgKey = ''
-    let typeName = ''
+    let errorMsgKey: 'varKeyError.keyAlreadyExists' | '' = ''
+    let typeName: 'variableConfig.varName' | 'variableConfig.labelName' | '' = ''
     if (hasDuplicateStr(newList.map(item => item.variable))) {
-      errorMsgKey = 'appDebug.varKeyError.keyAlreadyExists'
-      typeName = 'appDebug.variableConfig.varName'
+      errorMsgKey = 'varKeyError.keyAlreadyExists'
+      typeName = 'variableConfig.varName'
     }
     else if (hasDuplicateStr(newList.map(item => item.label as string))) {
-      errorMsgKey = 'appDebug.varKeyError.keyAlreadyExists'
-      typeName = 'appDebug.variableConfig.labelName'
+      errorMsgKey = 'varKeyError.keyAlreadyExists'
+      typeName = 'variableConfig.labelName'
     }
 
-    if (errorMsgKey) {
-      Toast.notify({
-        type: 'error',
-        message: t(errorMsgKey as any, { key: t(typeName as any) as string }) as string,
-      })
+    if (errorMsgKey && typeName) {
+      toast.error(t(errorMsgKey, { ns: 'appDebug', key: t(typeName, { ns: 'appDebug' }) }))
       return false
     }
     setInputs(newInputs)

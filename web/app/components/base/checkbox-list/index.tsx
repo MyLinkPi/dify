@@ -1,6 +1,5 @@
 'use client'
 import type { FC } from 'react'
-import Image from 'next/image'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Badge from '@/app/components/base/badge'
@@ -101,12 +100,12 @@ const CheckboxList: FC<CheckboxListProps> = ({
   return (
     <div className={cn('flex w-full flex-col gap-1', containerClassName)}>
       {label && (
-        <div className="system-sm-medium text-text-secondary">
+        <div className="text-text-secondary system-sm-medium">
           {label}
         </div>
       )}
       {description && (
-        <div className="body-xs-regular text-text-tertiary">
+        <div className="text-text-tertiary body-xs-regular">
           {description}
         </div>
       )}
@@ -120,29 +119,30 @@ const CheckboxList: FC<CheckboxListProps> = ({
                 indeterminate={isIndeterminate}
                 onCheck={handleSelectAll}
                 disabled={disabled}
+                id="selectAll"
               />
             )}
             {!searchQuery
               ? (
                   <div className="flex min-w-0 flex-1 items-center gap-1">
                     {title && (
-                      <span className="system-xs-semibold-uppercase truncate leading-5 text-text-secondary">
+                      <span className="truncate leading-5 text-text-secondary system-xs-semibold-uppercase">
                         {title}
                       </span>
                     )}
                     {showCount && selectedCount > 0 && (
                       <Badge uppercase>
-                        {t('common.operation.selectCount', { count: selectedCount })}
+                        {t('operation.selectCount', { ns: 'common', count: selectedCount })}
                       </Badge>
                     )}
                   </div>
                 )
               : (
-                  <div className="system-sm-medium-uppercase flex-1 leading-6 text-text-secondary">
+                  <div className="flex-1 leading-6 text-text-secondary system-sm-medium-uppercase">
                     {
                       filteredOptions.length > 0
-                        ? t('common.operation.searchCount', { count: filteredOptions.length, content: title })
-                        : t('common.operation.noSearchCount', { content: title })
+                        ? t('operation.searchCount', { ns: 'common', count: filteredOptions.length, content: title })
+                        : t('operation.noSearchCount', { ns: 'common', content: title })
                     }
                   </div>
                 )}
@@ -150,7 +150,7 @@ const CheckboxList: FC<CheckboxListProps> = ({
               <SearchInput
                 value={searchQuery}
                 onChange={setSearchQuery}
-                placeholder={t('common.placeholder.search')}
+                placeholder={t('placeholder.search', { ns: 'common' })}
                 className="w-40"
               />
             )}
@@ -160,6 +160,7 @@ const CheckboxList: FC<CheckboxListProps> = ({
         <div
           className="p-1"
           style={maxHeight ? { maxHeight, overflowY: 'auto' } : {}}
+          data-testid="options-container"
         >
           {!filteredOptions.length
             ? (
@@ -167,12 +168,12 @@ const CheckboxList: FC<CheckboxListProps> = ({
                   {searchQuery
                     ? (
                         <div className="flex flex-col items-center justify-center gap-2">
-                          <Image alt="search menu" src={SearchMenu} width={32} />
-                          <span className="system-sm-regular text-text-secondary">{t('common.operation.noSearchResults', { content: title })}</span>
-                          <Button variant="secondary-accent" size="small" onClick={() => setSearchQuery('')}>{t('common.operation.resetKeywords')}</Button>
+                          <img alt="search menu" src={SearchMenu.src} width={32} />
+                          <span className="text-text-secondary system-sm-regular">{t('operation.noSearchResults', { ns: 'common', content: title })}</span>
+                          <Button variant="secondary-accent" size="small" onClick={() => setSearchQuery('')}>{t('operation.resetKeywords', { ns: 'common' })}</Button>
                         </div>
                       )
-                    : t('common.noData')}
+                    : t('noData', { ns: 'common' })}
                 </div>
               )
             : (
@@ -182,6 +183,7 @@ const CheckboxList: FC<CheckboxListProps> = ({
                   return (
                     <div
                       key={option.value}
+                      data-testid="option-item"
                       className={cn(
                         'flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-state-base-hover',
                         option.disabled && 'cursor-not-allowed opacity-50',
@@ -198,9 +200,10 @@ const CheckboxList: FC<CheckboxListProps> = ({
                             handleToggleOption(option.value)
                         }}
                         disabled={option.disabled || disabled}
+                        id={option.value}
                       />
                       <div
-                        className="system-sm-medium flex-1 truncate text-text-secondary"
+                        className="flex-1 truncate text-text-secondary system-sm-medium"
                         title={option.label}
                       >
                         {option.label}

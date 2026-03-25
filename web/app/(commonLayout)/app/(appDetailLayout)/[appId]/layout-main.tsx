@@ -1,6 +1,6 @@
 'use client'
 import type { FC } from 'react'
-import type { NavIcon } from '@/app/components/app-sidebar/navLink'
+import type { NavIcon } from '@/app/components/app-sidebar/nav-link'
 import type { App } from '@/types/app'
 import {
   RiDashboard2Fill,
@@ -13,8 +13,6 @@ import {
   RiTerminalWindowLine,
 } from '@remixicon/react'
 import { useUnmount } from 'ahooks'
-import dynamic from 'next/dynamic'
-import { usePathname, useRouter } from 'next/navigation'
 import * as React from 'react'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -26,6 +24,8 @@ import { useStore as useTagStore } from '@/app/components/base/tag-management/st
 import { useAppContext } from '@/context/app-context'
 import useBreakpoints, { MediaType } from '@/hooks/use-breakpoints'
 import useDocumentTitle from '@/hooks/use-document-title'
+import dynamic from '@/next/dynamic'
+import { usePathname, useRouter } from '@/next/navigation'
 import { fetchAppDetailDirect } from '@/service/apps'
 import { AppModeEnum } from '@/types/app'
 import { cn } from '@/utils/classnames'
@@ -70,7 +70,7 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
     const navConfig = [
       ...(isCurrentWorkspaceEditor
         ? [{
-            name: t('common.appMenus.promptEng'),
+            name: t('appMenus.promptEng', { ns: 'common' }),
             href: `/app/${appId}/${(mode === AppModeEnum.WORKFLOW || mode === AppModeEnum.ADVANCED_CHAT) ? 'workflow' : 'configuration'}`,
             icon: RiTerminalWindowLine,
             selectedIcon: RiTerminalWindowFill,
@@ -78,7 +78,7 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
         : []
       ),
       {
-        name: t('common.appMenus.apiAccess'),
+        name: t('appMenus.apiAccess', { ns: 'common' }),
         href: `/app/${appId}/develop`,
         icon: RiTerminalBoxLine,
         selectedIcon: RiTerminalBoxFill,
@@ -86,8 +86,8 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
       ...(isCurrentWorkspaceEditor
         ? [{
             name: mode !== AppModeEnum.WORKFLOW
-              ? t('common.appMenus.logAndAnn')
-              : t('common.appMenus.logs'),
+              ? t('appMenus.logAndAnn', { ns: 'common' })
+              : t('appMenus.logs', { ns: 'common' }),
             href: `/app/${appId}/logs`,
             icon: RiFileList3Line,
             selectedIcon: RiFileList3Fill,
@@ -95,7 +95,7 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
         : []
       ),
       {
-        name: t('common.appMenus.overview'),
+        name: t('appMenus.overview', { ns: 'common' }),
         href: `/app/${appId}/overview`,
         icon: RiDashboard2Line,
         selectedIcon: RiDashboard2Fill,
@@ -104,7 +104,7 @@ const AppDetailLayout: FC<IAppDetailLayoutProps> = (props) => {
     return navConfig
   }, [t])
 
-  useDocumentTitle(appDetail?.name || t('common.menus.appDetail'))
+  useDocumentTitle(appDetail?.name || t('menus.appDetail', { ns: 'common' }))
 
   useEffect(() => {
     if (appDetail) {

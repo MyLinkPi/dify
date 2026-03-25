@@ -1,6 +1,5 @@
 import type { OnFeaturesChange } from '@/app/components/base/features/types'
 import type { UploadFileSetting } from '@/app/components/workflow/types'
-import { RiCloseLine } from '@remixicon/react'
 import { produce } from 'immer'
 import * as React from 'react'
 import { useCallback, useMemo, useState } from 'react'
@@ -58,8 +57,22 @@ const SettingContent = ({
   return (
     <>
       <div className="mb-4 flex items-center justify-between">
-        <div className="system-xl-semibold text-text-primary">{!imageUpload ? t('appDebug.feature.fileUpload.modalTitle') : t('appDebug.feature.imageUpload.modalTitle')}</div>
-        <div className="cursor-pointer p-1" onClick={onClose}><RiCloseLine className="h-4 w-4 text-text-tertiary" /></div>
+        <div className="text-text-primary system-xl-semibold">{!imageUpload ? t('feature.fileUpload.modalTitle', { ns: 'appDebug' }) : t('feature.imageUpload.modalTitle', { ns: 'appDebug' })}</div>
+        <div
+          className="cursor-pointer p-1"
+          onClick={onClose}
+          data-testid="close-setting-modal"
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              onClose()
+            }
+          }}
+        >
+          <span className="i-ri-close-line h-4 w-4 text-text-tertiary" />
+        </div>
       </div>
       <FileUploadSetting
         isMultiple
@@ -73,14 +86,14 @@ const SettingContent = ({
           onClick={onClose}
           className="mr-2"
         >
-          {t('common.operation.cancel')}
+          {t('operation.cancel', { ns: 'common' })}
         </Button>
         <Button
           variant="primary"
           onClick={handleChange}
           disabled={tempPayload.allowed_file_types.length === 0}
         >
-          {t('common.operation.save')}
+          {t('operation.save', { ns: 'common' })}
         </Button>
       </div>
     </>

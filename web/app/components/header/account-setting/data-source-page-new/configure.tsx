@@ -44,7 +44,7 @@ const Configure = ({
   const canOAuth = oAuthData.client_schema?.length
   const oAuthButtonProps: AddOAuthButtonProps = useMemo(() => {
     return {
-      buttonText: t('plugin.auth.addOAuth'),
+      buttonText: t('auth.addOAuth', { ns: 'plugin' }),
       pluginPayload,
     }
   }, [pluginPayload, t])
@@ -52,7 +52,7 @@ const Configure = ({
   const apiKeyButtonProps: AddApiKeyButtonProps = useMemo(() => {
     return {
       pluginPayload,
-      buttonText: t('plugin.auth.addApi'),
+      buttonText: t('auth.addApi', { ns: 'plugin' }),
     }
   }, [pluginPayload, t])
 
@@ -81,10 +81,10 @@ const Configure = ({
             variant="secondary-accent"
           >
             <RiAddLine className="h-4 w-4" />
-            {t('common.dataSource.configure')}
+            {t('dataSource.configure', { ns: 'common' })}
           </Button>
         </PortalToFollowElemTrigger>
-        <PortalToFollowElemContent className="z-[61]">
+        <PortalToFollowElemContent className="z-[1002]">
           <div className="w-[240px] space-y-1.5 rounded-xl border-[0.5px] border-components-panel-border bg-components-panel-bg-blur p-2 shadow-lg">
             {
               !!canOAuth && (
@@ -104,7 +104,7 @@ const Configure = ({
             }
             {
               !!canApiKey && !!canOAuth && (
-                <div className="system-2xs-medium-uppercase flex h-4 items-center p-2 text-text-quaternary">
+                <div className="flex h-4 items-center p-2 text-text-quaternary system-2xs-medium-uppercase">
                   <div className="mr-2 h-[1px] grow bg-gradient-to-l from-[rgba(16,24,40,0.08)]" />
                   OR
                   <div className="ml-2 h-[1px] grow bg-gradient-to-r from-[rgba(16,24,40,0.08)]" />

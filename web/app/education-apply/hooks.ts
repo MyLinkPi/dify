@@ -3,7 +3,6 @@ import { useDebounceFn, useLocalStorageState } from 'ahooks'
 import dayjs from 'dayjs'
 import timezone from 'dayjs/plugin/timezone'
 import utc from 'dayjs/plugin/utc'
-import { useRouter, useSearchParams } from 'next/navigation'
 import {
   useCallback,
   useEffect,
@@ -13,9 +12,9 @@ import { ACCOUNT_SETTING_TAB } from '@/app/components/header/account-setting/con
 import { useAppContext } from '@/context/app-context'
 import { useModalContextSelector } from '@/context/modal-context'
 import { useProviderContext } from '@/context/provider-context'
+import { useRouter, useSearchParams } from '@/next/navigation'
 import { useEducationAutocomplete, useEducationVerify } from '@/service/use-education'
 import {
-  EDUCATION_PRICING_SHOW_ACTION,
   EDUCATION_RE_VERIFY_ACTION,
   EDUCATION_VERIFY_URL_SEARCHPARAMS_ACTION,
   EDUCATION_VERIFYING_LOCALSTORAGE_ITEM,
@@ -133,7 +132,6 @@ const useEducationReverifyNotice = ({
 
 export const useEducationInit = () => {
   const setShowAccountSettingModal = useModalContextSelector(s => s.setShowAccountSettingModal)
-  const setShowPricingModal = useModalContextSelector(s => s.setShowPricingModal)
   const setShowEducationExpireNoticeModal = useModalContextSelector(s => s.setShowEducationExpireNoticeModal)
   const educationVerifying = localStorage.getItem(EDUCATION_VERIFYING_LOCALSTORAGE_ITEM)
   const searchParams = useSearchParams()
@@ -160,8 +158,6 @@ export const useEducationInit = () => {
       if (educationVerifyAction === EDUCATION_VERIFY_URL_SEARCHPARAMS_ACTION)
         localStorage.setItem(EDUCATION_VERIFYING_LOCALSTORAGE_ITEM, 'yes')
     }
-    if (educationVerifyAction === EDUCATION_PRICING_SHOW_ACTION)
-      setShowPricingModal()
     if (educationVerifyAction === EDUCATION_RE_VERIFY_ACTION)
       handleVerify()
   }, [setShowAccountSettingModal, educationVerifying, educationVerifyAction])

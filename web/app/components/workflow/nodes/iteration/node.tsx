@@ -12,13 +12,13 @@ import {
   useNodesInitialized,
   useViewport,
 } from 'reactflow'
-import Toast from '@/app/components/base/toast'
+import { toast } from '@/app/components/base/ui/toast'
 import { cn } from '@/utils/classnames'
 import { IterationStartNodeDumb } from '../iteration-start'
 import AddBlock from './add-block'
 import { useNodeIterationInteractions } from './use-interactions'
 
-const i18nPrefix = 'workflow.nodes.iteration'
+const i18nPrefix = 'nodes.iteration'
 
 const Node: FC<NodeProps<IterationNodeType>> = ({
   id,
@@ -34,11 +34,7 @@ const Node: FC<NodeProps<IterationNodeType>> = ({
     if (nodesInitialized)
       handleNodeIterationRerender(id)
     if (data.is_parallel && showTips) {
-      Toast.notify({
-        type: 'warning',
-        message: t(`${i18nPrefix}.answerNodeWarningDesc`),
-        duration: 5000,
-      })
+      toast.warning(t(`${i18nPrefix}.answerNodeWarningDesc`, { ns: 'workflow' }))
       setShowTips(false)
     }
   }, [nodesInitialized, id, handleNodeIterationRerender, data.is_parallel, showTips, t])

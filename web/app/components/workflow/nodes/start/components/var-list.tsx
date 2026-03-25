@@ -7,7 +7,7 @@ import * as React from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ReactSortable } from 'react-sortablejs'
-import Toast from '@/app/components/base/toast'
+import { toast } from '@/app/components/base/ui/toast'
 import { ChangeType } from '@/app/components/workflow/types'
 import { cn } from '@/utils/classnames'
 import { hasDuplicateStr } from '@/utils/var'
@@ -31,22 +31,19 @@ const VarList: FC<Props> = ({
       const newList = produce(list, (draft) => {
         draft[index] = payload
       })
-      let errorMsgKey = ''
-      let typeName = ''
+      let errorMsgKey: 'varKeyError.keyAlreadyExists' | '' = ''
+      let typeName: 'variableConfig.varName' | 'variableConfig.labelName' | '' = ''
       if (hasDuplicateStr(newList.map(item => item.variable))) {
-        errorMsgKey = 'appDebug.varKeyError.keyAlreadyExists'
-        typeName = 'appDebug.variableConfig.varName'
+        errorMsgKey = 'varKeyError.keyAlreadyExists'
+        typeName = 'variableConfig.varName'
       }
       else if (hasDuplicateStr(newList.map(item => item.label as string))) {
-        errorMsgKey = 'appDebug.varKeyError.keyAlreadyExists'
-        typeName = 'appDebug.variableConfig.labelName'
+        errorMsgKey = 'varKeyError.keyAlreadyExists'
+        typeName = 'variableConfig.labelName'
       }
 
-      if (errorMsgKey) {
-        Toast.notify({
-          type: 'error',
-          message: t(errorMsgKey as any, { key: t(typeName as any) as string }) as string,
-        })
+      if (errorMsgKey && typeName) {
+        toast.error(t(errorMsgKey, { ns: 'appDebug', key: t(typeName, { ns: 'appDebug' }) }))
         return false
       }
       onChange(newList, moreInfo ? { index, payload: moreInfo } : undefined)
@@ -83,7 +80,7 @@ const VarList: FC<Props> = ({
   if (list.length === 0) {
     return (
       <div className="flex h-[42px] items-center justify-center rounded-md bg-components-panel-bg text-xs font-normal leading-[18px] text-text-tertiary">
-        {t('workflow.nodes.start.noVarTip')}
+        {t('nodes.start.noVarTip', { ns: 'workflow' })}
       </div>
     )
   }

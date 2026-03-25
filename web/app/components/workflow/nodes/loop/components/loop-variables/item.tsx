@@ -7,7 +7,7 @@ import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import ActionButton from '@/app/components/base/action-button'
 import Input from '@/app/components/base/input'
-import Toast from '@/app/components/base/toast'
+import { toast } from '@/app/components/base/ui/toast'
 import { ValueType, VarType } from '@/app/components/workflow/types'
 import { checkKeys, replaceSpaceWithUnderscoreInVarNameInput } from '@/utils/var'
 import FormItem from './form-item'
@@ -28,10 +28,7 @@ const Item = ({
   const checkVariableName = (value: string) => {
     const { isValid, errorMessageKey } = checkKeys([value], false)
     if (!isValid) {
-      Toast.notify({
-        type: 'error',
-        message: t(`appDebug.varKeyError.${errorMessageKey}` as any, { key: t('workflow.env.modal.name') }) as string,
-      })
+      toast.error(t(`varKeyError.${errorMessageKey}`, { ns: 'appDebug', key: t('env.modal.name', { ns: 'workflow' }) }))
       return false
     }
     return true
@@ -77,7 +74,7 @@ const Item = ({
             onChange={handleUpdateItemLabel}
             onBlur={e => checkVariableName(e.target.value)}
             autoFocus={!item.label}
-            placeholder={t('workflow.nodes.loop.variableName')}
+            placeholder={t('nodes.loop.variableName', { ns: 'workflow' })}
           />
           <VariableTypeSelect
             value={item.var_type}

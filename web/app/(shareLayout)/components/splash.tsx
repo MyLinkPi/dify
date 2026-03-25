@@ -1,11 +1,11 @@
 'use client'
 import type { FC, PropsWithChildren } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import AppUnavailable from '@/app/components/base/app-unavailable'
 import Loading from '@/app/components/base/loading'
 import { useWebAppStore } from '@/context/web-app-context'
+import { useRouter, useSearchParams } from '@/next/navigation'
 import { fetchAccessToken } from '@/service/share'
 import { setWebAppAccessToken, setWebAppPassport, webAppLoginStatus, webAppLogout } from '@/service/webapp-auth'
 
@@ -31,7 +31,7 @@ const Splash: FC<PropsWithChildren> = ({ children }) => {
     await webAppLogout(shareCode!)
     const url = getSigninUrl()
     router.replace(url)
-  }, [getSigninUrl, router, webAppLogout, shareCode])
+  }, [getSigninUrl, router, shareCode])
 
   const [isLoading, setIsLoading] = useState(true)
   useEffect(() => {
@@ -94,8 +94,8 @@ const Splash: FC<PropsWithChildren> = ({ children }) => {
   if (message) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-y-4">
-        <AppUnavailable className="h-auto w-auto" code={code || t('share.common.appUnavailable')} unknownReason={message} />
-        <span className="system-sm-regular cursor-pointer text-text-tertiary" onClick={backToHome}>{code === '403' ? t('common.userProfile.logout') : t('share.login.backToHome')}</span>
+        <AppUnavailable className="h-auto w-auto" code={code || t('common.appUnavailable', { ns: 'share' })} unknownReason={message} />
+        <span className="system-sm-regular cursor-pointer text-text-tertiary" onClick={backToHome}>{code === '403' ? t('userProfile.logout', { ns: 'common' }) : t('login.backToHome', { ns: 'share' })}</span>
       </div>
     )
   }

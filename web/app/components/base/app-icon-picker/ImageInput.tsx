@@ -42,6 +42,7 @@ const ImageInput: FC<UploaderProps> = ({
   const [zoom, setZoom] = useState(1)
 
   const onCropComplete = async (_: Area, croppedAreaPixels: Area) => {
+    /* v8 ignore next -- unreachable guard when Cropper is rendered @preserve */
     if (!inputImage)
       return
     onImageInput?.(true, inputImage.url, croppedAreaPixels, inputImage.file.name)
@@ -72,7 +73,8 @@ const ImageInput: FC<UploaderProps> = ({
   const handleShowImage = () => {
     if (isAnimatedImage) {
       return (
-        <img src={inputImage?.url} alt="" />
+        // eslint-disable-next-line next/no-img-element
+        <img src={inputImage?.url} alt="" data-testid="animated-image" />
       )
     }
 
@@ -106,10 +108,10 @@ const ImageInput: FC<UploaderProps> = ({
                   <ImagePlus className="pointer-events-none mb-3 h-[30px] w-[30px]" />
                   <div className="mb-[2px] text-sm font-medium">
                     <span className="pointer-events-none">
-                      {t('common.imageInput.dropImageHere')}
-&nbsp;
+                      {t('imageInput.dropImageHere', { ns: 'common' })}
+                    &nbsp;
                     </span>
-                    <button type="button" className="text-components-button-primary-bg" onClick={() => inputRef.current?.click()}>{t('common.imageInput.browse')}</button>
+                    <button type="button" className="text-components-button-primary-bg" onClick={() => inputRef.current?.click()}>{t('imageInput.browse', { ns: 'common' })}</button>
                     <input
                       ref={inputRef}
                       type="file"
@@ -117,9 +119,10 @@ const ImageInput: FC<UploaderProps> = ({
                       onClick={e => ((e.target as HTMLInputElement).value = '')}
                       accept={ALLOW_FILE_EXTENSIONS.map(ext => `.${ext}`).join(',')}
                       onChange={handleLocalFileInput}
+                      data-testid="image-input"
                     />
                   </div>
-                  <div className="pointer-events-none">{t('common.imageInput.supportedFormats')}</div>
+                  <div className="pointer-events-none">{t('imageInput.supportedFormats', { ns: 'common' })}</div>
                 </>
               )
             : handleShowImage()

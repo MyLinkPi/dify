@@ -10,14 +10,12 @@ import type {
   DebugInfo as DebugInfoTypes,
   Dependency,
   GitHubItemAndMarketPlaceDependency,
-  InstalledLatestVersionResponse,
   InstalledPluginListWithTotalResponse,
   InstallPackageResponse,
   InstallStatusResponse,
   PackageDependency,
   Plugin,
   PluginDeclaration,
-  PluginDetail,
   PluginInfoFromMarketPlace,
   PluginsFromMarketplaceByInfoResponse,
   PluginsFromMarketplaceResponse,
@@ -33,7 +31,7 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query'
-import { cloneDeep } from 'es-toolkit/compat'
+import { cloneDeep } from 'es-toolkit/object'
 import { useCallback, useEffect, useState } from 'react'
 import useRefreshPluginList from '@/app/components/plugins/install-plugin/hooks/use-refresh-plugin-list'
 import { getFormattedPlugin } from '@/app/components/plugins/marketplace/utils'
@@ -42,11 +40,12 @@ import { PluginCategoryEnum, TaskStatus } from '@/app/components/plugins/types'
 import { fetchModelProviderModelList } from '@/service/common'
 import { fetchPluginInfoFromMarketPlace, uninstallPlugin } from '@/service/plugins'
 import { get, getMarketplace, post, postMarketplace } from './base'
+import { consoleQuery } from './client'
 import { useInvalidateAllBuiltInTools } from './use-tools'
 
 const NAME_SPACE = 'plugins'
-
 const useInstalledPluginListKey = [NAME_SPACE, 'installedPluginList']
+
 export const useCheckInstalled = ({
   pluginIds,
   enabled,
@@ -54,16 +53,20 @@ export const useCheckInstalled = ({
   pluginIds: string[]
   enabled: boolean
 }) => {
-  return useQuery<{ plugins: PluginDetail[] }>({
-    queryKey: [NAME_SPACE, 'checkInstalled', pluginIds],
-    queryFn: () => post<{ plugins: PluginDetail[] }>('/workspaces/current/plugin/list/installations/ids', {
-      body: {
-        plugin_ids: pluginIds,
-      },
-    }),
+  return useQuery(consoleQuery.plugins.checkInstalled.queryOptions({
+    input: { body: { plugin_ids: pluginIds } },
     enabled,
-    staleTime: 0, // always fresh
-  })
+    staleTime: 0,
+  }))
+}
+
+export const useInvalidateCheckInstalled = () => {
+  const queryClient = useQueryClient()
+  return () => {
+    queryClient.invalidateQueries({
+      queryKey: consoleQuery.plugins.checkInstalled.key(),
+    })
+  }
 }
 
 const useRecommendedMarketplacePluginsKey = [NAME_SPACE, 'recommendedMarketplacePlugins']
@@ -178,19 +181,6 @@ export const useInstalledPluginList = (disable?: boolean, pageSize = 100) => {
     error,
     isSuccess,
   }
-}
-
-export const useInstalledLatestVersion = (pluginIds: string[]) => {
-  return useQuery<InstalledLatestVersionResponse>({
-    queryKey: [NAME_SPACE, 'installedLatestVersion', pluginIds],
-    queryFn: () => post<InstalledLatestVersionResponse>('/workspaces/current/plugin/list/latest-versions', {
-      body: {
-        plugin_ids: pluginIds,
-      },
-    }),
-    enabled: !!pluginIds.length,
-    initialData: pluginIds.length ? undefined : { versions: {} },
-  })
 }
 
 export const useInvalidateInstalledPluginList = () => {
@@ -488,23 +478,23 @@ export const useMutationPluginsFromMarketplace = () => {
     mutationFn: (pluginsSearchParams: PluginsSearchParams) => {
       const {
         query,
-        sortBy,
-        sortOrder,
+        sort_by,
+        sort_order,
         category,
         tags,
         exclude,
         type,
         page = 1,
-        pageSize = 40,
+        page_size = 40,
       } = pluginsSearchParams
       const pluginOrBundle = type === 'bundle' ? 'bundles' : 'plugins'
       return postMarketplace<{ data: PluginsFromMarketplaceResponse }>(`/${pluginOrBundle}/search/advanced`, {
         body: {
           page,
-          page_size: pageSize,
+          page_size,
           query,
-          sort_by: sortBy,
-          sort_order: sortOrder,
+          sort_by,
+          sort_order,
           category: category !== 'all' ? category : '',
           tags,
           exclude,
@@ -535,23 +525,23 @@ export const useFetchPluginListOrBundleList = (pluginsSearchParams: PluginsSearc
     queryFn: () => {
       const {
         query,
-        sortBy,
-        sortOrder,
+        sort_by,
+        sort_order,
         category,
         tags,
         exclude,
         type,
         page = 1,
-        pageSize = 40,
+        page_size = 40,
       } = pluginsSearchParams
       const pluginOrBundle = type === 'bundle' ? 'bundles' : 'plugins'
       return postMarketplace<{ data: PluginsFromMarketplaceResponse }>(`/${pluginOrBundle}/search/advanced`, {
         body: {
           page,
-          page_size: pageSize,
+          page_size,
           query,
-          sort_by: sortBy,
-          sort_order: sortOrder,
+          sort_by,
+          sort_order,
           category: category !== 'all' ? category : '',
           tags,
           exclude,
@@ -653,7 +643,7 @@ export const useMutationClearAllTaskPlugin = () => {
 export const usePluginManifestInfo = (pluginUID: string) => {
   return useQuery({
     enabled: !!pluginUID,
-    queryKey: [[NAME_SPACE, 'manifest', pluginUID]],
+    queryKey: [NAME_SPACE, 'manifest', pluginUID],
     queryFn: () => getMarketplace<{ data: { plugin: PluginInfoFromMarketPlace, version: { version: string } } }>(`/plugins/${pluginUID}`),
     retry: 0,
   })
@@ -677,20 +667,21 @@ export const useMutationCheckDependencies = () => {
 }
 
 export const useModelInList = (currentProvider?: ModelProvider, modelId?: string) => {
+  const provider = currentProvider?.provider
   return useQuery({
-    queryKey: ['modelInList', currentProvider?.provider, modelId],
+    queryKey: ['modelInList', provider, modelId],
     queryFn: async () => {
-      if (!modelId || !currentProvider)
+      if (!modelId || !provider)
         return false
       try {
-        const modelsData = await fetchModelProviderModelList(`/workspaces/current/model-providers/${currentProvider?.provider}/models`)
-        return !!modelId && !!modelsData.data.find(item => item.model === modelId)
+        const modelsData = await fetchModelProviderModelList(`/workspaces/current/model-providers/${provider}/models`)
+        return !!modelId && modelsData.data.some(item => item.model === modelId)
       }
       catch {
         return false
       }
     },
-    enabled: !!modelId && !!currentProvider,
+    enabled: !!modelId && !!provider,
   })
 }
 
@@ -742,7 +733,7 @@ export const usePluginReadme = ({ plugin_unique_identifier, language }: { plugin
 export const usePluginReadmeAsset = ({ file_name, plugin_unique_identifier }: { file_name?: string, plugin_unique_identifier?: string }) => {
   const normalizedFileName = file_name?.replace(/(^\.\/_assets\/|^_assets\/)/, '')
   return useQuery({
-    queryKey: ['pluginReadmeAsset', plugin_unique_identifier, file_name],
+    queryKey: ['pluginReadmeAsset', plugin_unique_identifier, normalizedFileName],
     queryFn: () => get<Blob>('/workspaces/current/plugin/asset', { params: { plugin_unique_identifier, file_name: normalizedFileName } }, { silent: true }),
     enabled: !!plugin_unique_identifier && !!file_name && /(^\.\/_assets|^_assets)/.test(file_name),
   })

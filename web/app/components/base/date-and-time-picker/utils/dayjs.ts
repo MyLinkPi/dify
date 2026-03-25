@@ -3,6 +3,7 @@ import type { Day } from '../types'
 import dayjs from 'dayjs'
 import timezone from 'dayjs/plugin/timezone'
 import utc from 'dayjs/plugin/utc'
+import { IS_PROD } from '@/config'
 import tz from '@/utils/timezone.json'
 
 dayjs.extend(utc)
@@ -110,7 +111,8 @@ export const convertTimezoneToOffsetStr = (timezone?: string) => {
     return DEFAULT_OFFSET_STR
   // Extract offset from name format like "-11:00 Niue Time" or "+05:30 India Time"
   // Name format is always "{offset}:{minutes} {timezone name}"
-  const offsetMatch = tzItem.name.match(/^([+-]?\d{1,2}):(\d{2})/)
+  const offsetMatch = /^([+-]?\d{1,2}):(\d{2})/.exec(tzItem.name)
+  /* v8 ignore next 2 -- timezone.json entries are normalized to "{offset} {name}"; this protects against malformed data only. */
   if (!offsetMatch)
     return DEFAULT_OFFSET_STR
   // Parse hours and minutes separately
@@ -131,7 +133,7 @@ export type ToDayjsOptions = {
 }
 
 const warnParseFailure = (value: string) => {
-  if (process.env.NODE_ENV !== 'production')
+  if (!IS_PROD)
     console.warn('[TimePicker] Failed to parse time value', value)
 }
 
@@ -140,6 +142,7 @@ const normalizeMillisecond = (value: string | undefined) => {
     return 0
   if (value.length === 3)
     return Number(value)
+  /* v8 ignore next 2 -- TIME_ONLY_REGEX allows at most 3 fractional digits, so >3 can only occur after future regex changes. */
   if (value.length > 3)
     return Number(value.slice(0, 3))
   return Number(value.padEnd(3, '0'))

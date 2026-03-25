@@ -1,10 +1,10 @@
 'use client'
-import copy from 'copy-to-clipboard'
 import { t } from 'i18next'
 import * as React from 'react'
 import { useEffect, useState } from 'react'
 import CopyFeedback from '@/app/components/base/copy-feedback'
 import Tooltip from '@/app/components/base/tooltip'
+import { writeTextToClipboard } from '@/utils/clipboard'
 
 type IInputCopyProps = {
   value?: string
@@ -39,12 +39,13 @@ const InputCopy = ({
           <div
             className="r-0 absolute left-0 top-0 w-full cursor-pointer truncate pl-2 pr-2"
             onClick={() => {
-              copy(value)
-              setIsCopied(true)
+              writeTextToClipboard(value).then(() => {
+                setIsCopied(true)
+              })
             }}
           >
             <Tooltip
-              popupContent={isCopied ? `${t('appApi.copied')}` : `${t('appApi.copy')}`}
+              popupContent={isCopied ? `${t('copied', { ns: 'appApi' })}` : `${t('copy', { ns: 'appApi' })}`}
               position="bottom"
             >
               <span className="text-text-secondary">{value}</span>

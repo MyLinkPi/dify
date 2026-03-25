@@ -2,13 +2,13 @@
 import type { AppDetailResponse } from '@/models/app'
 import { Menu, MenuButton, MenuItem, MenuItems, Transition } from '@headlessui/react'
 import { ChevronDownIcon, PlusIcon } from '@heroicons/react/24/solid'
-import { noop } from 'es-toolkit/compat'
-import { useRouter } from 'next/navigation'
+import { noop } from 'es-toolkit/function'
 import { Fragment, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import CreateAppDialog from '@/app/components/app/create-app-dialog'
 import AppIcon from '@/app/components/base/app-icon'
 import { useAppContext } from '@/context/app-context'
+import { useRouter } from '@/next/navigation'
 import Indicator from '../indicator'
 
 type IAppSelectorProps = {
@@ -99,7 +99,7 @@ export default function AppSelector({ appItems, curApp }: IAppSelectorProps) {
                     >
                       <PlusIcon className="h-4 w-4 text-gray-500" />
                     </div>
-                    <div className="text-[14px] font-normal text-gray-700">{t('common.menus.newApp')}</div>
+                    <div className="text-[14px] font-normal text-gray-700">{t('menus.newApp', { ns: 'common' })}</div>
                   </div>
                 </div>
               </MenuItem>

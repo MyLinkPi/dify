@@ -1,10 +1,10 @@
 'use client'
 import { t } from 'i18next'
-import { useParams, usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { AudioPlayerManager } from '@/app/components/base/audio-btn/audio.player.manager'
 import Loading from '@/app/components/base/loading'
 import Tooltip from '@/app/components/base/tooltip'
+import { useParams, usePathname } from '@/next/navigation'
 import s from './style.module.css'
 
 type AudioBtnProps = {
@@ -73,11 +73,11 @@ const AudioBtn = ({
   }
 
   const tooltipContent = {
-    initial: t('appApi.play'),
-    ended: t('appApi.play'),
-    paused: t('appApi.pause'),
-    playing: t('appApi.playing'),
-    loading: t('appApi.loading'),
+    initial: t('play', { ns: 'appApi' }),
+    ended: t('play', { ns: 'appApi' }),
+    paused: t('pause', { ns: 'appApi' }),
+    playing: t('playing', { ns: 'appApi' }),
+    loading: t('loading', { ns: 'appApi' }),
   }[audioState]
 
   return (

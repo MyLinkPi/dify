@@ -11,7 +11,7 @@ import dayjs from 'dayjs'
 import * as React from 'react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import Toast from '@/app/components/base/toast'
+import { toast } from '@/app/components/base/ui/toast'
 import CodeEditor from '@/app/components/workflow/nodes/_base/components/editor/code-editor'
 import { CodeLanguage } from '@/app/components/workflow/nodes/code/types'
 import { cn } from '@/utils/classnames'
@@ -89,10 +89,7 @@ const LogViewer = ({ logs, className }: Props) => {
             onClick={(e) => {
               e.stopPropagation()
               navigator.clipboard.writeText(String(parsedData))
-              Toast.notify({
-                type: 'success',
-                message: t('common.actionMsg.copySuccessfully'),
-              })
+              toast.success(t('actionMsg.copySuccessfully', { ns: 'common' }))
             }}
             className="rounded-md p-0.5 hover:bg-components-panel-border"
           >
@@ -162,7 +159,7 @@ const LogViewer = ({ logs, className }: Props) => {
                       <RiArrowRightSLine className="h-4 w-4 text-text-tertiary" />
                     )}
                 <div className="system-xs-semibold-uppercase text-text-secondary">
-                  {t(`pluginTrigger.modal.manual.logs.${LogTypeEnum.REQUEST}`)}
+                  {t(`modal.manual.logs.${LogTypeEnum.REQUEST}`, { ns: 'pluginTrigger' })}
                   {' '}
                   #
                   {index + 1}

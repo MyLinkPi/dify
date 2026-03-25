@@ -11,7 +11,7 @@ import * as React from 'react'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Folder } from '@/app/components/base/icons/src/vender/line/files'
-import Toast from '@/app/components/base/toast'
+import { toast } from '@/app/components/base/ui/toast'
 import Field from '@/app/components/workflow/nodes/_base/components/field'
 import { VarType as VarKindType } from '@/app/components/workflow/nodes/tool/types'
 import { VarType } from '@/app/components/workflow/types'
@@ -19,7 +19,7 @@ import { checkKeys, replaceSpaceWithUnderscoreInVarNameInput } from '@/utils/var
 import VarReferencePicker from '../../_base/components/variable/var-reference-picker'
 import VarList from '../components/var-list'
 
-const i18nPrefix = 'workflow.nodes.variableAssigner'
+const i18nPrefix = 'nodes.variableAssigner'
 
 type Payload = VarGroupItemType & {
   group_name?: string
@@ -94,10 +94,7 @@ const VarGroupItem: FC<Props> = ({
     const value = e.target.value
     const { isValid, errorKey, errorMessageKey } = checkKeys([value], false)
     if (!isValid) {
-      Toast.notify({
-        type: 'error',
-        message: t(`appDebug.varKeyError.${errorMessageKey}` as any, { key: errorKey }) as string,
-      })
+      toast.error(t(`varKeyError.${errorMessageKey}`, { ns: 'appDebug', key: errorKey }))
       return
     }
     onGroupNameChange?.(value)
@@ -146,7 +143,7 @@ const VarGroupItem: FC<Props> = ({
               )}
             </div>
           )
-        : t(`${i18nPrefix}.title`)!}
+        : t(`${i18nPrefix}.title`, { ns: 'workflow' })!}
       operations={(
         <div className="flex h-6 items-center  space-x-2">
           {payload.variables.length > 0 && (

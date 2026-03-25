@@ -80,12 +80,12 @@ const AddCustomModel = ({
         )}
       >
         <RiAddCircleFill className="mr-1 h-3.5 w-3.5" />
-        {t('common.modelProvider.addModel')}
+        {t('modelProvider.addModel', { ns: 'common' })}
       </Button>
     )
     if (notAllowCustomCredential && !!noModels) {
       return (
-        <Tooltip asChild popupContent={t('plugin.auth.credentialUnavailable')}>
+        <Tooltip asChild popupContent={t('auth.credentialUnavailable', { ns: 'plugin' })}>
           {Item}
         </Tooltip>
       )
@@ -116,7 +116,7 @@ const AddCustomModel = ({
       >
         {renderTrigger(open)}
       </PortalToFollowElemTrigger>
-      <PortalToFollowElemContent className="z-[100]">
+      <PortalToFollowElemContent className="z-[1002]">
         <div className="w-[320px] rounded-xl border-[0.5px] border-components-panel-border bg-components-panel-bg-blur shadow-lg">
           <div className="max-h-[304px] overflow-y-auto p-1">
             {
@@ -136,7 +136,7 @@ const AddCustomModel = ({
                     modelName={model.model}
                   />
                   <div
-                    className="system-md-regular grow truncate text-text-primary"
+                    className="grow truncate text-text-primary system-md-regular"
                     title={model.model}
                   >
                     {model.model}
@@ -148,14 +148,14 @@ const AddCustomModel = ({
           {
             !notAllowCustomCredential && (
               <div
-                className="system-xs-medium flex cursor-pointer items-center border-t border-t-divider-subtle p-3 text-text-accent-light-mode-only"
+                className="flex cursor-pointer items-center border-t border-t-divider-subtle p-3 text-text-accent-light-mode-only system-xs-medium"
                 onClick={() => {
                   handleOpenModalForAddNewCustomModel()
                   setOpen(false)
                 }}
               >
                 <RiAddLine className="mr-1 h-4 w-4" />
-                {t('common.modelProvider.auth.addNewModel')}
+                {t('modelProvider.auth.addNewModel', { ns: 'common' })}
               </div>
             )
           }

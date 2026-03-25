@@ -4,9 +4,9 @@ import {
   RiHammerFill,
   RiHammerLine,
 } from '@remixicon/react'
-import Link from 'next/link'
-import { useSelectedLayoutSegment } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
+import Link from '@/next/link'
+import { useSelectedLayoutSegment } from '@/next/navigation'
 import { cn } from '@/utils/classnames'
 
 type ToolsNavProps = {
@@ -31,7 +31,7 @@ const ToolsNav = ({
           : <RiHammerLine className="h-4 w-4" />
       }
       <div className="ml-2 max-[1024px]:hidden">
-        {t('common.menus.tools')}
+        {t('menus.tools', { ns: 'common' })}
       </div>
     </Link>
   )

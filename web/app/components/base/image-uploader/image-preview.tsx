@@ -1,6 +1,5 @@
 import type { FC } from 'react'
-import { RiAddBoxLine, RiCloseLine, RiDownloadCloud2Line, RiFileCopyLine, RiZoomInLine, RiZoomOutLine } from '@remixicon/react'
-import { noop } from 'es-toolkit/compat'
+import { noop } from 'es-toolkit/function'
 import { t } from 'i18next'
 import * as React from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -8,6 +7,7 @@ import { createPortal } from 'react-dom'
 import { useHotkeys } from 'react-hotkeys-hook'
 import Toast from '@/app/components/base/toast'
 import Tooltip from '@/app/components/base/tooltip'
+import { downloadUrl } from '@/utils/download'
 
 type ImagePreviewProps = {
   url: string
@@ -60,27 +60,14 @@ const ImagePreview: FC<ImagePreviewProps> = ({
 
   const downloadImage = () => {
     // Open in a new window, considering the case when the page is inside an iframe
-    if (url.startsWith('http') || url.startsWith('https')) {
-      const a = document.createElement('a')
-      a.href = url
-      a.target = '_blank'
-      a.download = title
-      a.click()
+    if (url.startsWith('http') || url.startsWith('https') || url.startsWith('data:image')) {
+      downloadUrl({ url, fileName: title, target: '_blank' })
+      return
     }
-    else if (url.startsWith('data:image')) {
-      // Base64 image
-      const a = document.createElement('a')
-      a.href = url
-      a.target = '_blank'
-      a.download = title
-      a.click()
-    }
-    else {
-      Toast.notify({
-        type: 'error',
-        message: `Unable to open image: ${url}`,
-      })
-    }
+    Toast.notify({
+      type: 'error',
+      message: `Unable to open image: ${url}`,
+    })
   }
 
   const zoomIn = () => {
@@ -129,22 +116,17 @@ const ImagePreview: FC<ImagePreviewProps> = ({
 
         Toast.notify({
           type: 'success',
-          message: t('common.operation.imageCopied'),
+          message: t('operation.imageCopied', { ns: 'common' }),
         })
       }
       catch (err) {
         console.error('Failed to copy image:', err)
 
-        const link = document.createElement('a')
-        link.href = url
-        link.download = `${title}.png`
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
+        downloadUrl({ url, fileName: `${title}.png` })
 
         Toast.notify({
           type: 'info',
-          message: t('common.operation.imageDownloaded'),
+          message: t('operation.imageDownloaded', { ns: 'common' }),
         })
       }
     }
@@ -213,8 +195,10 @@ const ImagePreview: FC<ImagePreviewProps> = ({
       onMouseUp={handleMouseUp}
       style={{ cursor: scale > 1 ? 'move' : 'default' }}
       tabIndex={-1}
+      data-testid="image-preview-container"
     >
       { }
+      {/* eslint-disable-next-line next/no-img-element */}
       <img
         ref={imgRef}
         alt={title}
@@ -224,55 +208,56 @@ const ImagePreview: FC<ImagePreviewProps> = ({
           transform: `scale(${scale}) translate(${position.x}px, ${position.y}px)`,
           transition: isDragging ? 'none' : 'transform 0.2s ease-in-out',
         }}
+        data-testid="image-preview-image"
       />
-      <Tooltip popupContent={t('common.operation.copyImage')}>
+      <Tooltip popupContent={t('operation.copyImage', { ns: 'common' })}>
         <div
           className="absolute right-48 top-6 flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg"
           onClick={imageCopy}
         >
           {isCopied
-            ? <RiFileCopyLine className="h-4 w-4 text-green-500" />
-            : <RiFileCopyLine className="h-4 w-4 text-gray-500" />}
+            ? <span className="i-ri-file-copy-line h-4 w-4 text-green-500" data-testid="image-preview-copied-icon" />
+            : <span className="i-ri-file-copy-line h-4 w-4 text-gray-500" data-testid="image-preview-copy-button" />}
         </div>
       </Tooltip>
-      <Tooltip popupContent={t('common.operation.zoomOut')}>
+      <Tooltip popupContent={t('operation.zoomOut', { ns: 'common' })}>
         <div
           className="absolute right-40 top-6 flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg"
           onClick={zoomOut}
         >
-          <RiZoomOutLine className="h-4 w-4 text-gray-500" />
+          <span className="i-ri-zoom-out-line h-4 w-4 text-gray-500" data-testid="image-preview-zoom-out-button" />
         </div>
       </Tooltip>
-      <Tooltip popupContent={t('common.operation.zoomIn')}>
+      <Tooltip popupContent={t('operation.zoomIn', { ns: 'common' })}>
         <div
           className="absolute right-32 top-6 flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg"
           onClick={zoomIn}
         >
-          <RiZoomInLine className="h-4 w-4 text-gray-500" />
+          <span className="i-ri-zoom-in-line h-4 w-4 text-gray-500" data-testid="image-preview-zoom-in-button" />
         </div>
       </Tooltip>
-      <Tooltip popupContent={t('common.operation.download')}>
+      <Tooltip popupContent={t('operation.download', { ns: 'common' })}>
         <div
           className="absolute right-24 top-6 flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg"
           onClick={downloadImage}
         >
-          <RiDownloadCloud2Line className="h-4 w-4 text-gray-500" />
+          <span className="i-ri-download-cloud-2-line h-4 w-4 text-gray-500" data-testid="image-preview-download-button" />
         </div>
       </Tooltip>
-      <Tooltip popupContent={t('common.operation.openInNewTab')}>
+      <Tooltip popupContent={t('operation.openInNewTab', { ns: 'common' })}>
         <div
           className="absolute right-16 top-6 flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg"
           onClick={openInNewTab}
         >
-          <RiAddBoxLine className="h-4 w-4 text-gray-500" />
+          <span className="i-ri-add-box-line h-4 w-4 text-gray-500" data-testid="image-preview-open-in-tab-button" />
         </div>
       </Tooltip>
-      <Tooltip popupContent={t('common.operation.cancel')}>
+      <Tooltip popupContent={t('operation.cancel', { ns: 'common' })}>
         <div
           className="absolute right-6 top-6 flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg bg-white/8 backdrop-blur-[2px]"
           onClick={onCancel}
         >
-          <RiCloseLine className="h-4 w-4 text-gray-500" />
+          <span className="i-ri-close-line h-4 w-4 text-gray-500" data-testid="image-preview-close-button" />
         </div>
       </Tooltip>
     </div>,

@@ -166,17 +166,17 @@ const SearchMethodOption = ({
             <div>
               {
                 showRerankModelSelectorSwitch && (
-                  <div className="system-sm-semibold mb-1 flex items-center text-text-secondary">
+                  <div className="mb-1 flex items-center text-text-secondary system-sm-semibold">
                     <Switch
                       className="mr-1"
-                      defaultValue={rerankingModelEnabled}
+                      value={rerankingModelEnabled ?? false}
                       onChange={onRerankingModelEnabledChange}
                       disabled={readonly}
                     />
-                    {t('common.modelProvider.rerankModel.key')}
+                    {t('modelProvider.rerankModel.key', { ns: 'common' })}
                     <Tooltip
                       triggerClassName="ml-0.5 shrink-0 w-3.5 h-3.5"
-                      popupContent={t('common.modelProvider.rerankModel.tip')}
+                      popupContent={t('modelProvider.rerankModel.tip', { ns: 'common' })}
                     />
                   </div>
                 )
@@ -192,8 +192,8 @@ const SearchMethodOption = ({
                   <div className="p-1">
                     <AlertTriangle className="size-4 text-text-warning-secondary" />
                   </div>
-                  <span className="system-xs-medium text-text-primary">
-                    {t('datasetSettings.form.retrievalSetting.multiModalTip')}
+                  <span className="text-text-primary system-xs-medium">
+                    {t('form.retrievalSetting.multiModalTip', { ns: 'datasetSettings' })}
                   </span>
                 </div>
               )}

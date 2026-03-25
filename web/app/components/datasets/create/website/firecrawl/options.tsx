@@ -8,7 +8,7 @@ import { cn } from '@/utils/classnames'
 import CheckboxWithLabel from '../base/checkbox-with-label'
 import Field from '../base/field'
 
-const I18N_PREFIX = 'datasetCreation.stepOne.website'
+const I18N_PREFIX = 'stepOne.website'
 
 type Props = {
   className?: string
@@ -32,9 +32,10 @@ const Options: FC<Props> = ({
     }
   }, [payload, onChange])
   return (
-    <div className={cn(className, ' space-y-2')}>
+    <div className={cn(className, 'space-y-2')}>
       <CheckboxWithLabel
-        label={t(`${I18N_PREFIX}.crawlSubPage`)}
+        label={t(`${I18N_PREFIX}.crawlSubPage`, { ns: 'datasetCreation' })}
+        testId="crawl-sub-page"
         isChecked={payload.crawl_sub_pages}
         onChange={handleChange('crawl_sub_pages')}
         labelClassName="text-[13px] leading-[16px] font-medium text-text-secondary"
@@ -42,7 +43,7 @@ const Options: FC<Props> = ({
       <div className="flex justify-between space-x-4">
         <Field
           className="shrink-0 grow"
-          label={t(`${I18N_PREFIX}.limit`)}
+          label={t(`${I18N_PREFIX}.limit`, { ns: 'datasetCreation' })}
           value={payload.limit}
           onChange={handleChange('limit')}
           isNumber
@@ -50,32 +51,33 @@ const Options: FC<Props> = ({
         />
         <Field
           className="shrink-0 grow"
-          label={t(`${I18N_PREFIX}.maxDepth`)}
+          label={t(`${I18N_PREFIX}.maxDepth`, { ns: 'datasetCreation' })}
           value={payload.max_depth}
           onChange={handleChange('max_depth')}
           isNumber
-          tooltip={t(`${I18N_PREFIX}.maxDepthTooltip`)!}
+          tooltip={t(`${I18N_PREFIX}.maxDepthTooltip`, { ns: 'datasetCreation' })!}
         />
       </div>
 
       <div className="flex justify-between space-x-4">
         <Field
           className="shrink-0 grow"
-          label={t(`${I18N_PREFIX}.excludePaths`)}
+          label={t(`${I18N_PREFIX}.excludePaths`, { ns: 'datasetCreation' })}
           value={payload.excludes}
           onChange={handleChange('excludes')}
           placeholder="blog/*, /about/*"
         />
         <Field
           className="shrink-0 grow"
-          label={t(`${I18N_PREFIX}.includeOnlyPaths`)}
+          label={t(`${I18N_PREFIX}.includeOnlyPaths`, { ns: 'datasetCreation' })}
           value={payload.includes}
           onChange={handleChange('includes')}
           placeholder="articles/*"
         />
       </div>
       <CheckboxWithLabel
-        label={t(`${I18N_PREFIX}.extractOnlyMainContent`)}
+        label={t(`${I18N_PREFIX}.extractOnlyMainContent`, { ns: 'datasetCreation' })}
+        testId="only-main-content"
         isChecked={payload.only_main_content}
         onChange={handleChange('only_main_content')}
         labelClassName="text-[13px] leading-[16px] font-medium text-text-secondary"

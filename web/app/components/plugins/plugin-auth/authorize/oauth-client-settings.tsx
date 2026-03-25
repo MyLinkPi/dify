@@ -17,7 +17,7 @@ import { useTranslation } from 'react-i18next'
 import Button from '@/app/components/base/button'
 import AuthForm from '@/app/components/base/form/form-scenarios/auth'
 import Modal from '@/app/components/base/modal/modal'
-import { useToastContext } from '@/app/components/base/toast'
+import { useToastContext } from '@/app/components/base/toast/context'
 import { ReadmeEntrance } from '../../readme-panel/entrance'
 import { ReadmeShowType } from '../../readme-panel/store'
 import {
@@ -88,7 +88,7 @@ const OAuthClientSettings = ({
       })
       notify({
         type: 'success',
-        message: t('common.api.actionSuccess'),
+        message: t('api.actionSuccess', { ns: 'common' }),
       })
 
       onClose?.()
@@ -115,7 +115,7 @@ const OAuthClientSettings = ({
       await deletePluginOAuthCustomClient()
       notify({
         type: 'success',
-        message: t('common.api.actionSuccess'),
+        message: t('api.actionSuccess', { ns: 'common' }),
       })
       onClose?.()
       onUpdate?.()
@@ -131,10 +131,10 @@ const OAuthClientSettings = ({
   const __oauth_client__ = useStore(form.store, s => s.values.__oauth_client__)
   return (
     <Modal
-      title={t('plugin.auth.oauthClientSettings')}
-      confirmButtonText={t('plugin.auth.saveAndAuth')}
-      cancelButtonText={t('plugin.auth.saveOnly')}
-      extraButtonText={t('common.operation.cancel')}
+      title={t('auth.oauthClientSettings', { ns: 'plugin' })}
+      confirmButtonText={t('auth.saveAndAuth', { ns: 'plugin' })}
+      cancelButtonText={t('auth.saveOnly', { ns: 'plugin' })}
+      extraButtonText={t('operation.cancel', { ns: 'common' })}
       showExtraButton
       extraButtonVariant="secondary"
       onExtraButtonClick={onClose}
@@ -151,7 +151,7 @@ const OAuthClientSettings = ({
               disabled={disabled || doingAction || !editValues}
               onClick={handleRemove}
             >
-              {t('common.operation.remove')}
+              {t('operation.remove', { ns: 'common' })}
             </Button>
           </div>
         )

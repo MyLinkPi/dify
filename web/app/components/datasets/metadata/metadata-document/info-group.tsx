@@ -2,12 +2,12 @@
 import type { FC } from 'react'
 import type { MetadataItemWithValue } from '../types'
 import { RiDeleteBinLine, RiQuestionLine } from '@remixicon/react'
-import { useRouter } from 'next/navigation'
 import * as React from 'react'
 import { useTranslation } from 'react-i18next'
 import Divider from '@/app/components/base/divider'
 import Tooltip from '@/app/components/base/tooltip'
 import useTimestamp from '@/hooks/use-timestamp'
+import { useRouter } from '@/next/navigation'
 import { cn } from '@/utils/classnames'
 import AddMetadataButton from '../add-metadata-button'
 import InputCombined from '../edit-metadata-batch/input-combined'
@@ -104,7 +104,7 @@ const InfoGroup: FC<Props> = ({
                     </div>
                   </div>
                 )
-              : (<div className="system-xs-regular py-1 text-text-secondary">{(item.value && item.type === DataType.time) ? formatTimestamp((item.value as number), t('datasetDocuments.metadata.dateTimeFormat')) : item.value}</div>)}
+              : (<div className="system-xs-regular py-1 text-text-secondary">{(item.value && item.type === DataType.time) ? formatTimestamp((item.value as number), t('metadata.dateTimeFormat', { ns: 'datasetDocuments' })) : item.value}</div>)}
           </Field>
         ))}
       </div>

@@ -2,7 +2,6 @@ import type { OnFeaturesChange } from '@/app/components/base/features/types'
 import type { AnnotationReplyConfig } from '@/models/debug'
 import { RiEqualizer2Line, RiExternalLinkLine } from '@remixicon/react'
 import { produce } from 'immer'
-import { usePathname, useRouter } from 'next/navigation'
 import * as React from 'react'
 import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -14,6 +13,7 @@ import FeatureCard from '@/app/components/base/features/new-feature-panel/featur
 import { MessageFast } from '@/app/components/base/icons/src/vender/features'
 import AnnotationFullModal from '@/app/components/billing/annotation-full/modal'
 import { ANNOTATION_DEFAULT } from '@/config'
+import { usePathname, useRouter } from '@/next/navigation'
 
 type Props = {
   disabled?: boolean
@@ -27,7 +27,7 @@ const AnnotationReply = ({
   const { t } = useTranslation()
   const router = useRouter()
   const pathname = usePathname()
-  const matched = pathname.match(/\/app\/([^/]+)/)
+  const matched = /\/app\/([^/]+)/.exec(pathname)
   const appId = (matched?.length && matched[1]) ? matched[1] : ''
   const featuresStore = useFeaturesStore()
   const annotationReply = useFeatures(s => s.features.annotationReply)
@@ -83,7 +83,7 @@ const AnnotationReply = ({
             <MessageFast className="h-4 w-4 text-text-primary-on-surface" />
           </div>
         )}
-        title={t('appDebug.feature.annotation.title')}
+        title={t('feature.annotation.title', { ns: 'appDebug' })}
         value={!!annotationReply?.enabled}
         onChange={state => handleSwitch(state)}
         onMouseEnter={() => setIsHovering(true)}
@@ -92,20 +92,20 @@ const AnnotationReply = ({
       >
         <>
           {!annotationReply?.enabled && (
-            <div className="system-xs-regular line-clamp-2 min-h-8 text-text-tertiary">{t('appDebug.feature.annotation.description')}</div>
+            <div className="line-clamp-2 min-h-8 text-text-tertiary system-xs-regular">{t('feature.annotation.description', { ns: 'appDebug' })}</div>
           )}
           {!!annotationReply?.enabled && (
             <>
               {!isHovering && (
                 <div className="flex items-center gap-4 pt-0.5">
                   <div className="">
-                    <div className="system-2xs-medium-uppercase mb-0.5 text-text-tertiary">{t('appDebug.feature.annotation.scoreThreshold.title')}</div>
-                    <div className="system-xs-regular text-text-secondary">{annotationReply.score_threshold || '-'}</div>
+                    <div className="mb-0.5 text-text-tertiary system-2xs-medium-uppercase">{t('feature.annotation.scoreThreshold.title', { ns: 'appDebug' })}</div>
+                    <div className="text-text-secondary system-xs-regular">{annotationReply.score_threshold || '-'}</div>
                   </div>
                   <div className="h-[27px] w-px rotate-12 bg-divider-subtle"></div>
                   <div className="">
-                    <div className="system-2xs-medium-uppercase mb-0.5 text-text-tertiary">{t('common.modelProvider.embeddingModel.key')}</div>
-                    <div className="system-xs-regular text-text-secondary">{annotationReply.embedding_model?.embedding_model_name}</div>
+                    <div className="mb-0.5 text-text-tertiary system-2xs-medium-uppercase">{t('modelProvider.embeddingModel.key', { ns: 'common' })}</div>
+                    <div className="text-text-secondary system-xs-regular">{annotationReply.embedding_model?.embedding_model_name}</div>
                   </div>
                 </div>
               )}
@@ -113,7 +113,7 @@ const AnnotationReply = ({
                 <div className="flex items-center justify-between">
                   <Button className="w-[178px]" onClick={() => setIsShowAnnotationConfigInit(true)} disabled={disabled}>
                     <RiEqualizer2Line className="mr-1 h-4 w-4" />
-                    {t('common.operation.params')}
+                    {t('operation.params', { ns: 'common' })}
                   </Button>
                   <Button
                     className="w-[178px]"
@@ -122,7 +122,7 @@ const AnnotationReply = ({
                     }}
                   >
                     <RiExternalLinkLine className="mr-1 h-4 w-4" />
-                    {t('appDebug.feature.annotation.cacheManagement')}
+                    {t('feature.annotation.cacheManagement', { ns: 'appDebug' })}
                   </Button>
                 </div>
               )}

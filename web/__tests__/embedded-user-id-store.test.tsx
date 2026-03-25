@@ -4,7 +4,7 @@ import WebAppStoreProvider, { useWebAppStore } from '@/context/web-app-context'
 
 import { AccessMode } from '@/models/access-control'
 
-vi.mock('next/navigation', () => ({
+vi.mock('@/next/navigation', () => ({
   usePathname: vi.fn(() => '/chatbot/sample-app'),
   useSearchParams: vi.fn(() => {
     const params = new URLSearchParams()
@@ -53,6 +53,7 @@ vi.mock('@/context/global-public-context', () => {
   )
   return {
     useGlobalPublicStore,
+    useIsSystemFeaturesPending: () => false,
   }
 })
 

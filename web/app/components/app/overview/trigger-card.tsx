@@ -2,7 +2,7 @@
 import type { AppDetailResponse } from '@/models/app'
 import type { AppTrigger } from '@/service/use-tools'
 import type { AppSSO } from '@/types/app'
-import Link from 'next/link'
+import type { I18nKeysByPrefix } from '@/types/i18n'
 import * as React from 'react'
 import { useTranslation } from 'react-i18next'
 import { TriggerAll } from '@/app/components/base/icons/src/vender/workflow'
@@ -12,6 +12,7 @@ import { useTriggerStatusStore } from '@/app/components/workflow/store/trigger-s
 import { BlockEnum } from '@/app/components/workflow/types'
 import { useAppContext } from '@/context/app-context'
 import { useDocLink } from '@/context/i18n'
+import Link from '@/next/link'
 import {
 
   useAppTriggers,
@@ -23,7 +24,7 @@ import { canFindTool } from '@/utils'
 
 export type ITriggerCardProps = {
   appInfo: AppDetailResponse & Partial<AppSSO>
-  onToggleResult?: (err: Error | null, message?: string) => void
+  onToggleResult?: (err: Error | null, message?: I18nKeysByPrefix<'common', 'actionMsg.'>) => void
 }
 
 const getTriggerIcon = (trigger: AppTrigger, triggerPlugins: any[]) => {
@@ -162,8 +163,8 @@ function TriggerCard({ appInfo, onToggleResult }: ITriggerCardProps) {
               <div className="group w-full">
                 <div className="system-md-semibold min-w-0 overflow-hidden text-ellipsis break-normal text-text-secondary group-hover:text-text-primary">
                   {triggerCount > 0
-                    ? t('appOverview.overview.triggerInfo.triggersAdded', { count: triggerCount })
-                    : t('appOverview.overview.triggerInfo.noTriggerAdded')}
+                    ? t('overview.triggerInfo.triggersAdded', { ns: 'appOverview', count: triggerCount })
+                    : t('overview.triggerInfo.noTriggerAdded', { ns: 'appOverview' })}
                 </div>
               </div>
             </div>
@@ -185,13 +186,13 @@ function TriggerCard({ appInfo, onToggleResult }: ITriggerCardProps) {
                 <div className="flex shrink-0 items-center">
                   <div className={`${trigger.status === 'enabled' ? 'text-text-success' : 'text-text-warning'} system-xs-semibold-uppercase whitespace-nowrap`}>
                     {trigger.status === 'enabled'
-                      ? t('appOverview.overview.status.running')
-                      : t('appOverview.overview.status.disable')}
+                      ? t('overview.status.running', { ns: 'appOverview' })
+                      : t('overview.status.disable', { ns: 'appOverview' })}
                   </div>
                 </div>
                 <div className="shrink-0">
                   <Switch
-                    defaultValue={trigger.status === 'enabled'}
+                    value={trigger.status === 'enabled'}
                     onChange={enabled => onToggleTrigger(trigger, enabled)}
                     disabled={!isCurrentWorkspaceEditor}
                   />
@@ -204,15 +205,15 @@ function TriggerCard({ appInfo, onToggleResult }: ITriggerCardProps) {
         {triggerCount === 0 && (
           <div className="p-3">
             <div className="system-xs-regular leading-4 text-text-tertiary">
-              {t('appOverview.overview.triggerInfo.triggerStatusDescription')}
+              {t('overview.triggerInfo.triggerStatusDescription', { ns: 'appOverview' })}
               {' '}
               <Link
-                href={docLink('/guides/workflow/node/trigger')}
+                href={docLink('/use-dify/nodes/trigger/overview')}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-text-accent hover:underline"
               >
-                {t('appOverview.overview.triggerInfo.learnAboutTriggers')}
+                {t('overview.triggerInfo.learnAboutTriggers', { ns: 'appOverview' })}
               </Link>
             </div>
           </div>

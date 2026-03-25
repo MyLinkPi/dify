@@ -4,10 +4,11 @@ import type { BasicPlan } from '../../../type'
 import * as React from 'react'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { toast } from '@/app/components/base/ui/toast'
 import { useAppContext } from '@/context/app-context'
 import { useAsyncWindowOpen } from '@/hooks/use-async-window-open'
-import { fetchBillingUrl, fetchSubscriptionUrls } from '@/service/billing'
-import Toast from '../../../../base/toast'
+import { fetchSubscriptionUrls } from '@/service/billing'
+import { consoleClient } from '@/service/client'
 import { ALL_PLANS } from '../../../config'
 import { Plan } from '../../../type'
 import { Professional, Sandbox, Team } from '../../assets'
@@ -35,7 +36,7 @@ const CloudPlanItem: FC<CloudPlanItemProps> = ({
 }) => {
   const { t } = useTranslation()
   const [loading, setLoading] = React.useState(false)
-  const i18nPrefix = `billing.plans.${plan}`
+  const i18nPrefix = `plans.${plan}` as const
   const isFreePlan = plan === Plan.sandbox
   const isMostPopularPlan = plan === Plan.professional
   const planInfo = ALL_PLANS[plan]
@@ -48,12 +49,12 @@ const CloudPlanItem: FC<CloudPlanItemProps> = ({
 
   const btnText = useMemo(() => {
     if (isCurrent)
-      return t('billing.plansCommon.currentPlan')
+      return t('plansCommon.currentPlan', { ns: 'billing' })
 
     return ({
-      [Plan.sandbox]: t('billing.plansCommon.startForFree'),
-      [Plan.professional]: t('billing.plansCommon.startBuilding'),
-      [Plan.team]: t('billing.plansCommon.getStarted'),
+      [Plan.sandbox]: t('plansCommon.startForFree', { ns: 'billing' }),
+      [Plan.professional]: t('plansCommon.startBuilding', { ns: 'billing' }),
+      [Plan.team]: t('plansCommon.getStarted', { ns: 'billing' }),
     })[plan]
   }, [isCurrent, plan, t])
 
@@ -65,24 +66,20 @@ const CloudPlanItem: FC<CloudPlanItemProps> = ({
       return
 
     if (!isCurrentWorkspaceManager) {
-      Toast.notify({
-        type: 'error',
-        message: t('billing.buyPermissionDeniedTip'),
-        className: 'z-[1001]',
-      })
+      toast.error(t('buyPermissionDeniedTip', { ns: 'billing' }))
       return
     }
     setLoading(true)
     try {
       if (isCurrentPaidPlan) {
         await openAsyncWindow(async () => {
-          const res = await fetchBillingUrl()
+          const res = await consoleClient.billing.invoices()
           if (res.url)
             return res.url
           throw new Error('Failed to open billing page')
         }, {
           onError: (err) => {
-            Toast.notify({ type: 'error', message: err.message || String(err) })
+            toast.error(err.message || String(err))
           },
         })
         return
@@ -106,40 +103,40 @@ const CloudPlanItem: FC<CloudPlanItemProps> = ({
           {ICON_MAP[plan]}
           <div className="flex min-h-[104px] flex-col gap-y-2">
             <div className="flex items-center gap-x-2.5">
-              <div className="text-[30px] font-medium leading-[1.2] text-text-primary">{t(`${i18nPrefix}.name` as any) as string}</div>
+              <div className="text-[30px] font-medium leading-[1.2] text-text-primary">{t(`${i18nPrefix}.name`, { ns: 'billing' })}</div>
               {
                 isMostPopularPlan && (
                   <div className="flex items-center justify-center bg-saas-dify-blue-static px-1.5 py-1">
-                    <span className="system-2xs-semibold-uppercase text-text-primary-on-surface">
-                      {t('billing.plansCommon.mostPopular')}
+                    <span className="text-text-primary-on-surface system-2xs-semibold-uppercase">
+                      {t('plansCommon.mostPopular', { ns: 'billing' })}
                     </span>
                   </div>
                 )
               }
             </div>
-            <div className="system-sm-regular text-text-secondary">{t(`${i18nPrefix}.description` as any) as string}</div>
+            <div className="text-text-secondary system-sm-regular">{t(`${i18nPrefix}.description`, { ns: 'billing' })}</div>
           </div>
         </div>
         {/* Price */}
         <div className="flex items-end gap-x-2 px-1 pb-8 pt-4">
           {isFreePlan && (
-            <span className="title-4xl-semi-bold text-text-primary">{t('billing.plansCommon.free')}</span>
+            <span className="text-text-primary title-4xl-semi-bold">{t('plansCommon.free', { ns: 'billing' })}</span>
           )}
           {!isFreePlan && (
             <>
               {isYear && (
-                <span className="title-4xl-semi-bold text-text-quaternary line-through">
+                <span className="text-text-quaternary line-through title-4xl-semi-bold">
                   $
                   {planInfo.price * 12}
                 </span>
               )}
-              <span className="title-4xl-semi-bold text-text-primary">
+              <span className="text-text-primary title-4xl-semi-bold">
                 $
                 {isYear ? planInfo.price * 10 : planInfo.price}
               </span>
-              <span className="system-md-regular pb-0.5 text-text-tertiary">
-                {t('billing.plansCommon.priceTip')}
-                {t(`billing.plansCommon.${!isYear ? 'month' : 'year'}`)}
+              <span className="pb-0.5 text-text-tertiary system-md-regular">
+                {t('plansCommon.priceTip', { ns: 'billing' })}
+                {t(`plansCommon.${!isYear ? 'month' : 'year'}`, { ns: 'billing' })}
               </span>
             </>
           )}

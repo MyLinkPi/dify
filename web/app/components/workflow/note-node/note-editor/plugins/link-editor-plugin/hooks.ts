@@ -5,7 +5,7 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import {
   mergeRegister,
 } from '@lexical/utils'
-import { escape } from 'es-toolkit/compat'
+import { escape } from 'es-toolkit/string'
 import {
   CLICK_COMMAND,
   COMMAND_PRIORITY_LOW,
@@ -15,7 +15,7 @@ import {
   useEffect,
 } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useToastContext } from '@/app/components/base/toast'
+import { useToastContext } from '@/app/components/base/toast/context'
 import { useNoteEditorStore } from '../../store'
 import { urlRegExp } from '../../utils'
 
@@ -92,7 +92,7 @@ export const useLink = () => {
 
   const handleSaveLink = useCallback((url: string) => {
     if (url && !urlRegExp.test(url)) {
-      notify({ type: 'error', message: t('workflow.nodes.note.editor.invalidUrl') })
+      notify({ type: 'error', message: t('nodes.note.editor.invalidUrl', { ns: 'workflow' }) })
       return
     }
     editor.dispatchCommand(TOGGLE_LINK_COMMAND, escape(url))

@@ -59,6 +59,7 @@ const Header = () => {
     setShowConfirm(null)
   }, [])
   const handleDelete = useCallback(() => {
+    /* v8 ignore next -- defensive guard; onConfirm is only reachable when showConfirm is truthy. @preserve */
     if (showConfirm)
       handleDeleteConversation(showConfirm.id, { onSuccess: handleCancelConfirm })
   }, [showConfirm, handleDeleteConversation, handleCancelConfirm])
@@ -66,6 +67,7 @@ const Header = () => {
     setShowRename(null)
   }, [])
   const handleRename = useCallback((newName: string) => {
+    /* v8 ignore next -- defensive guard; onSave is only reachable when showRename is truthy. @preserve */
     if (showRename)
       handleRenameConversation(showRename.id, newName, { onSuccess: handleCancelRename })
   }, [showRename, handleRenameConversation, handleCancelRename])
@@ -87,7 +89,7 @@ const Header = () => {
             />
           </div>
           {!currentConversationId && (
-            <div className={cn('system-md-semibold grow truncate text-text-secondary')}>{appData?.site.title}</div>
+            <div className={cn('grow truncate text-text-secondary system-md-semibold')}>{appData?.site.title}</div>
           )}
           {currentConversationId && currentConversationItem && isSidebarCollapsed && (
             <>
@@ -109,7 +111,7 @@ const Header = () => {
           {isSidebarCollapsed && (
             <Tooltip
               disabled={!!currentConversationId}
-              popupContent={t('share.chat.newChatTip')}
+              popupContent={t('chat.newChatTip', { ns: 'share' })}
             >
               <div>
                 <ActionButton
@@ -127,7 +129,7 @@ const Header = () => {
         <div className="flex items-center gap-1">
           {currentConversationId && (
             <Tooltip
-              popupContent={t('share.chat.resetChat')}
+              popupContent={t('chat.resetChat', { ns: 'share' })}
             >
               <ActionButton size="l" onClick={handleNewConversation}>
                 <RiResetLeftLine className="h-[18px] w-[18px]" />
@@ -141,8 +143,8 @@ const Header = () => {
       </div>
       {!!showConfirm && (
         <Confirm
-          title={t('share.chat.deleteConversation.title')}
-          content={t('share.chat.deleteConversation.content') || ''}
+          title={t('chat.deleteConversation.title', { ns: 'share' })}
+          content={t('chat.deleteConversation.content', { ns: 'share' }) || ''}
           isShow
           onCancel={handleCancelConfirm}
           onConfirm={handleDelete}

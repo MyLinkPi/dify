@@ -1,64 +1,60 @@
-'use client'
-import { useEffect, useState } from 'react'
+import type { ImageLoadingStatus } from '@base-ui/react/avatar'
+import { Avatar as BaseAvatar } from '@base-ui/react/avatar'
 import { cn } from '@/utils/classnames'
+
+export const avatarSizeClasses = {
+  'xxs': { root: 'size-4', text: 'text-[7px]' },
+  'xs': { root: 'size-5', text: 'text-[8px]' },
+  'sm': { root: 'size-6', text: 'text-[10px]' },
+  'md': { root: 'size-8', text: 'text-xs' },
+  'lg': { root: 'size-9', text: 'text-sm' },
+  'xl': { root: 'size-10', text: 'text-base' },
+  '2xl': { root: 'size-12', text: 'text-xl' },
+  '3xl': { root: 'size-16', text: 'text-2xl' },
+} as const
+
+export type AvatarSize = keyof typeof avatarSizeClasses
+
+export const getAvatarSizeClassNames = (size: AvatarSize) => avatarSizeClasses[size]
 
 export type AvatarProps = {
   name: string
   avatar: string | null
-  size?: number
+  size?: AvatarSize
   className?: string
-  textClassName?: string
-  onError?: (x: boolean) => void
+  onLoadingStatusChange?: (status: ImageLoadingStatus) => void
 }
-const Avatar = ({
+
+export const AvatarRoot = BaseAvatar.Root
+export const AvatarImage = BaseAvatar.Image
+export const AvatarFallback = BaseAvatar.Fallback
+
+const ROOT_CLASS_NAME = 'relative inline-flex shrink-0 select-none items-center justify-center overflow-hidden rounded-full bg-primary-600'
+const IMAGE_CLASS_NAME = 'absolute inset-0 size-full object-cover'
+const FALLBACK_CLASS_NAME = 'flex size-full items-center justify-center font-medium text-white'
+
+export const Avatar = ({
   name,
   avatar,
-  size = 30,
+  size = 'md',
   className,
-  textClassName,
-  onError,
+  onLoadingStatusChange,
 }: AvatarProps) => {
-  const avatarClassName = 'shrink-0 flex items-center rounded-full bg-primary-600'
-  const style = { width: `${size}px`, height: `${size}px`, fontSize: `${size}px`, lineHeight: `${size}px` }
-  const [imgError, setImgError] = useState(false)
-
-  const handleError = () => {
-    setImgError(true)
-    onError?.(true)
-  }
-
-  // after uploaded, api would first return error imgs url: '.../files//file-preview/...'. Then return the right url, Which caused not show the avatar
-  useEffect(() => {
-    if (avatar && imgError)
-      setImgError(false)
-  }, [avatar])
-
-  if (avatar && !imgError) {
-    return (
-      <img
-        className={cn(avatarClassName, className)}
-        style={style}
-        alt={name}
-        src={avatar}
-        onError={handleError}
-        onLoad={() => onError?.(false)}
-      />
-    )
-  }
+  const sizeClassNames = getAvatarSizeClassNames(size)
 
   return (
-    <div
-      className={cn(avatarClassName, className)}
-      style={style}
-    >
-      <div
-        className={cn(textClassName, 'scale-[0.4] text-center text-white')}
-        style={style}
-      >
-        {name && name[0].toLocaleUpperCase()}
-      </div>
-    </div>
+    <AvatarRoot className={cn(ROOT_CLASS_NAME, sizeClassNames.root, className)}>
+      {avatar && (
+        <AvatarImage
+          src={avatar}
+          alt={name}
+          className={IMAGE_CLASS_NAME}
+          onLoadingStatusChange={onLoadingStatusChange}
+        />
+      )}
+      <AvatarFallback className={cn(FALLBACK_CLASS_NAME, sizeClassNames.text)}>
+        {name?.[0]?.toLocaleUpperCase()}
+      </AvatarFallback>
+    </AvatarRoot>
   )
 }
-
-export default Avatar

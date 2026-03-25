@@ -47,20 +47,18 @@ vi.mock('ahooks', () => ({
   },
 }))
 
-vi.mock('next/navigation', () => ({
+vi.mock('@/next/navigation', () => ({
   useRouter: () => ({
     push: vi.fn(),
   }),
 }))
 
-vi.mock('next/link', () => ({
-  __esModule: true,
+vi.mock('@/next/link', () => ({
   default: ({ children, href }: { children: React.ReactNode, href: string }) => <a href={href}>{children}</a>,
 }))
 
 // Mock the Run component to avoid complex dependencies
 vi.mock('@/app/components/workflow/run', () => ({
-  __esModule: true,
   default: ({ runDetailUrl, tracingListUrl }: { runDetailUrl: string, tracingListUrl: string }) => (
     <div data-testid="workflow-run">
       <span data-testid="run-detail-url">{runDetailUrl}</span>
@@ -75,7 +73,6 @@ vi.mock('@/app/components/base/amplitude/utils', () => ({
 }))
 
 vi.mock('@/hooks/use-theme', () => ({
-  __esModule: true,
   default: () => {
     return { theme: 'light' }
   },

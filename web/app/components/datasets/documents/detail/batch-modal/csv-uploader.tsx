@@ -12,7 +12,7 @@ import Button from '@/app/components/base/button'
 import { getFileUploadErrorMessage } from '@/app/components/base/file-uploader/utils'
 import { Csv as CSVIcon } from '@/app/components/base/icons/src/public/files'
 import SimplePieChart from '@/app/components/base/simple-pie-chart'
-import { ToastContext } from '@/app/components/base/toast'
+import { ToastContext } from '@/app/components/base/toast/context'
 import useTheme from '@/hooks/use-theme'
 import { upload } from '@/service/base'
 import { useFileUploadConfig } from '@/service/use-common'
@@ -75,7 +75,7 @@ const CSVUploader: FC<Props> = ({
         return Promise.resolve({ ...completeFile })
       })
       .catch((e) => {
-        const errorMessage = getFileUploadErrorMessage(e, t('datasetCreation.stepOne.uploader.failed'), t as any)
+        const errorMessage = getFileUploadErrorMessage(e, t('stepOne.uploader.failed', { ns: 'datasetCreation' }), t)
         notify({ type: 'error', message: errorMessage })
         const errorFile = {
           ...fileItem,
@@ -126,9 +126,9 @@ const CSVUploader: FC<Props> = ({
     setDragging(false)
     if (!e.dataTransfer)
       return
-    const files = [...e.dataTransfer.files]
+    const files = Array.from(e.dataTransfer.files)
     if (files.length > 1) {
-      notify({ type: 'error', message: t('datasetCreation.stepOne.uploader.validation.count') })
+      notify({ type: 'error', message: t('stepOne.uploader.validation.count', { ns: 'datasetCreation' }) })
       return
     }
     initialUpload(files[0])
@@ -159,11 +159,11 @@ const CSVUploader: FC<Props> = ({
     const ext = `.${getFileType(file)}`
     const isValidType = ext.toLowerCase() === '.csv'
     if (!isValidType)
-      notify({ type: 'error', message: t('datasetCreation.stepOne.uploader.validation.typeError') })
+      notify({ type: 'error', message: t('stepOne.uploader.validation.typeError', { ns: 'datasetCreation' }) })
 
     const isValidSize = size <= fileUploadConfig.file_size_limit * 1024 * 1024
     if (!isValidSize)
-      notify({ type: 'error', message: t('datasetCreation.stepOne.uploader.validation.size', { size: fileUploadConfig.file_size_limit }) })
+      notify({ type: 'error', message: t('stepOne.uploader.validation.size', { ns: 'datasetCreation', size: fileUploadConfig.file_size_limit }) })
 
     return isValidType && isValidSize
   }, [fileUploadConfig, notify, t])
@@ -204,12 +204,12 @@ const CSVUploader: FC<Props> = ({
       />
       <div ref={dropRef}>
         {!file && (
-          <div className={cn('flex h-20 items-center rounded-xl border border-dashed border-components-panel-border bg-components-panel-bg-blur text-sm font-normal', dragging && 'border border-divider-subtle  bg-components-panel-on-panel-item-bg-hover')}>
+          <div className={cn('flex h-20 items-center rounded-xl border border-dashed border-components-panel-border bg-components-panel-bg-blur text-sm font-normal', dragging && 'border border-divider-subtle bg-components-panel-on-panel-item-bg-hover')}>
             <div className="flex w-full items-center justify-center space-x-2">
               <CSVIcon className="shrink-0" />
               <div className="text-text-secondary">
-                {t('datasetDocuments.list.batchModal.csvUploadTitle')}
-                <span className="cursor-pointer text-text-accent" onClick={selectHandle}>{t('datasetDocuments.list.batchModal.browse')}</span>
+                {t('list.batchModal.csvUploadTitle', { ns: 'datasetDocuments' })}
+                <span className="cursor-pointer text-text-accent" onClick={selectHandle}>{t('list.batchModal.browse', { ns: 'datasetDocuments' })}</span>
               </div>
             </div>
             {dragging && <div ref={dragRef} className="absolute left-0 top-0 h-full w-full" />}
@@ -229,7 +229,7 @@ const CSVUploader: FC<Props> = ({
                   <div className="mx-2 h-4 w-px bg-text-secondary" />
                 </>
               )}
-              <Button onClick={selectHandle}>{t('datasetCreation.stepOne.uploader.change')}</Button>
+              <Button onClick={selectHandle}>{t('stepOne.uploader.change', { ns: 'datasetCreation' })}</Button>
               <div className="mx-2 h-4 w-px bg-text-secondary" />
               <div className="cursor-pointer p-2" onClick={removeFile}>
                 <RiDeleteBinLine className="h-4 w-4 text-text-secondary" />

@@ -78,6 +78,8 @@ const Sidebar = ({ isPanel, panelVisible }: Props) => {
     if (showRename)
       handleRenameConversation(showRename.id, newName, { onSuccess: handleCancelRename })
   }, [showRename, handleRenameConversation, handleCancelRename])
+  const pinnedTitle = t('chat.pinnedTitle', { ns: 'share' }) || ''
+  const deleteConversationContent = t('chat.deleteConversation.content', { ns: 'share' }) || ''
 
   return (
     <div className={cn(
@@ -113,7 +115,7 @@ const Sidebar = ({ isPanel, panelVisible }: Props) => {
       <div className="shrink-0 px-3 py-4">
         <Button variant="secondary-accent" disabled={isResponding} className="w-full justify-center" onClick={handleNewConversation}>
           <RiEditBoxLine className="mr-1 h-4 w-4" />
-          {t('share.chat.newChat')}
+          {t('chat.newChat', { ns: 'share' })}
         </Button>
       </div>
       <div className="h-0 grow space-y-2 overflow-y-auto px-3 pt-4">
@@ -122,7 +124,7 @@ const Sidebar = ({ isPanel, panelVisible }: Props) => {
           <div className="mb-4">
             <List
               isPin
-              title={t('share.chat.pinnedTitle') || ''}
+              title={pinnedTitle}
               list={pinnedConversationList}
               onChangeConversation={handleChangeConversation}
               onOperate={handleOperate}
@@ -132,7 +134,7 @@ const Sidebar = ({ isPanel, panelVisible }: Props) => {
         )}
         {!!conversationList.length && (
           <List
-            title={(pinnedConversationList.length && t('share.chat.unpinnedTitle')) || ''}
+            title={(pinnedConversationList.length && t('chat.unpinnedTitle', { ns: 'share' })) || ''}
             list={conversationList}
             onChangeConversation={handleChangeConversation}
             onOperate={handleOperate}
@@ -154,7 +156,7 @@ const Sidebar = ({ isPanel, panelVisible }: Props) => {
               'flex shrink-0 items-center gap-1.5 px-1',
             )}
             >
-              <div className="system-2xs-medium-uppercase text-text-tertiary">{t('share.chat.poweredBy')}</div>
+              <div className="system-2xs-medium-uppercase text-text-tertiary">{t('chat.poweredBy', { ns: 'share' })}</div>
               {
                 systemFeatures.branding.enabled && systemFeatures.branding.workspace_logo
                   ? <img src={systemFeatures.branding.workspace_logo} alt="logo" className="block h-5 w-auto" />
@@ -167,8 +169,8 @@ const Sidebar = ({ isPanel, panelVisible }: Props) => {
         </div>
         {!!showConfirm && (
           <Confirm
-            title={t('share.chat.deleteConversation.title')}
-            content={t('share.chat.deleteConversation.content') || ''}
+            title={t('chat.deleteConversation.title', { ns: 'share' })}
+            content={deleteConversationContent}
             isShow
             onCancel={handleCancelConfirm}
             onConfirm={handleDelete}

@@ -1,9 +1,8 @@
 import type { TagSelectorProps } from './selector'
 import type { HtmlContentProps } from '@/app/components/base/popover'
 import type { Tag } from '@/app/components/base/tag-management/constant'
-import { RiAddLine, RiPriceTag3Line } from '@remixicon/react'
 import { useUnmount } from 'ahooks'
-import { noop } from 'es-toolkit/compat'
+import { noop } from 'es-toolkit/function'
 import * as React from 'react'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -11,7 +10,7 @@ import { useContext } from 'use-context-selector'
 import Checkbox from '@/app/components/base/checkbox'
 import Divider from '@/app/components/base/divider'
 import Input from '@/app/components/base/input'
-import { ToastContext } from '@/app/components/base/toast'
+import { ToastContext } from '@/app/components/base/toast/context'
 import { bindTag, createTag, unBindTag } from '@/service/tag'
 import { useStore as useTagStore } from './store'
 
@@ -51,7 +50,7 @@ const Panel = (props: PanelProps) => {
     try {
       setCreating(true)
       const newTag = await createTag(keywords, type)
-      notify({ type: 'success', message: t('common.tag.created') })
+      notify({ type: 'success', message: t('tag.created', { ns: 'common' }) })
       setTagList([
         ...tagList,
         newTag,
@@ -61,26 +60,26 @@ const Panel = (props: PanelProps) => {
       onCreate()
     }
     catch {
-      notify({ type: 'error', message: t('common.tag.failed') })
+      notify({ type: 'error', message: t('tag.failed', { ns: 'common' }) })
       setCreating(false)
     }
   }
   const bind = async (tagIDs: string[]) => {
     try {
       await bindTag(tagIDs, targetID, type)
-      notify({ type: 'success', message: t('common.actionMsg.modifiedSuccessfully') })
+      notify({ type: 'success', message: t('actionMsg.modifiedSuccessfully', { ns: 'common' }) })
     }
     catch {
-      notify({ type: 'error', message: t('common.actionMsg.modifiedUnsuccessfully') })
+      notify({ type: 'error', message: t('actionMsg.modifiedUnsuccessfully', { ns: 'common' }) })
     }
   }
   const unbind = async (tagID: string) => {
     try {
       await unBindTag(tagID, targetID, type)
-      notify({ type: 'success', message: t('common.actionMsg.modifiedSuccessfully') })
+      notify({ type: 'success', message: t('actionMsg.modifiedSuccessfully', { ns: 'common' }) })
     }
     catch {
-      notify({ type: 'error', message: t('common.actionMsg.modifiedUnsuccessfully') })
+      notify({ type: 'error', message: t('actionMsg.modifiedUnsuccessfully', { ns: 'common' }) })
     }
   }
   const selectTag = (tag: Tag) => {
@@ -122,7 +121,7 @@ const Panel = (props: PanelProps) => {
           showLeftIcon
           showClearIcon
           value={keywords}
-          placeholder={t('common.tag.selectorPlaceholder') || ''}
+          placeholder={t('tag.selectorPlaceholder', { ns: 'common' }) || ''}
           onChange={e => handleKeywordsChange(e.target.value)}
           onClear={() => handleKeywordsChange('')}
         />
@@ -131,11 +130,12 @@ const Panel = (props: PanelProps) => {
         <div className="p-1">
           <div
             className="flex cursor-pointer items-center gap-x-1 rounded-lg px-2 py-1.5 hover:bg-state-base-hover"
+            data-testid="create-tag-option"
             onClick={createNewTag}
           >
-            <RiAddLine className="h-4 w-4 text-text-tertiary" />
-            <div className="system-md-regular grow truncate px-1 text-text-secondary">
-              {`${t('common.tag.create')} `}
+            <span className="i-ri-add-line h-4 w-4 text-text-tertiary" />
+            <div className="grow truncate px-1 text-text-secondary system-md-regular">
+              {`${t('tag.create', { ns: 'common' })} `}
               <span className="system-md-medium">{`'${keywords}'`}</span>
             </div>
           </div>
@@ -151,15 +151,17 @@ const Panel = (props: PanelProps) => {
               key={tag.id}
               className="flex cursor-pointer items-center gap-x-1 rounded-lg px-2 py-1.5 hover:bg-state-base-hover"
               onClick={() => selectTag(tag)}
+              data-testid="tag-row"
             >
               <Checkbox
                 className="shrink-0"
                 checked={selectedTagIDs.includes(tag.id)}
                 onCheck={noop}
+                id={tag.id}
               />
               <div
                 title={tag.name}
-                className="system-md-regular grow truncate px-1 text-text-secondary"
+                className="grow truncate px-1 text-text-secondary system-md-regular"
               >
                 {tag.name}
               </div>
@@ -170,15 +172,17 @@ const Panel = (props: PanelProps) => {
               key={tag.id}
               className="flex cursor-pointer items-center gap-x-1 rounded-lg px-2 py-1.5 hover:bg-state-base-hover"
               onClick={() => selectTag(tag)}
+              data-testid="tag-row"
             >
               <Checkbox
                 className="shrink-0"
                 checked={selectedTagIDs.includes(tag.id)}
                 onCheck={noop}
+                id={tag.id}
               />
               <div
                 title={tag.name}
-                className="system-md-regular grow truncate px-1 text-text-secondary"
+                className="grow truncate px-1 text-text-secondary system-md-regular"
               >
                 {tag.name}
               </div>
@@ -189,8 +193,8 @@ const Panel = (props: PanelProps) => {
       {!keywords && !filteredTagList.length && !filteredSelectedTagList.length && (
         <div className="p-1">
           <div className="flex flex-col items-center gap-y-1 p-3">
-            <RiPriceTag3Line className="h-6 w-6 text-text-quaternary" />
-            <div className="system-xs-regular text-text-tertiary">{t('common.tag.noTag')}</div>
+            <span className="i-ri-price-tag-3-line h-6 w-6 text-text-quaternary" />
+            <div className="text-text-tertiary system-xs-regular">{t('tag.noTag', { ns: 'common' })}</div>
           </div>
         </div>
       )}
@@ -200,9 +204,9 @@ const Panel = (props: PanelProps) => {
           className="flex cursor-pointer items-center gap-x-1 rounded-lg px-2 py-1.5 hover:bg-state-base-hover"
           onClick={() => setShowTagManagementModal(true)}
         >
-          <RiPriceTag3Line className="h-4 w-4 text-text-tertiary" />
-          <div className="system-md-regular grow truncate px-1 text-text-secondary">
-            {t('common.tag.manageTags')}
+          <span className="i-ri-price-tag-3-line h-4 w-4 text-text-tertiary" />
+          <div className="grow truncate px-1 text-text-secondary system-md-regular">
+            {t('tag.manageTags', { ns: 'common' })}
           </div>
         </div>
       </div>

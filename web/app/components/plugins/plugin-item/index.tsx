@@ -11,7 +11,6 @@ import {
 import * as React from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { gte } from 'semver'
 import Tooltip from '@/app/components/base/tooltip'
 import useRefreshPluginList from '@/app/components/plugins/install-plugin/hooks/use-refresh-plugin-list'
 import { API_PREFIX } from '@/config'
@@ -20,6 +19,7 @@ import { useGlobalPublicStore } from '@/context/global-public-context'
 import { useRenderI18nObject } from '@/hooks/use-i18n'
 import useTheme from '@/hooks/use-theme'
 import { cn } from '@/utils/classnames'
+import { isEqualOrLaterThanVersion } from '@/utils/semver'
 import { getMarketplaceUrl } from '@/utils/var'
 import Badge from '../../base/badge'
 import { Github } from '../../base/icons/src/public/common'
@@ -44,7 +44,7 @@ const PluginItem: FC<Props> = ({
 }) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
-  const { categoriesMap } = useCategories(t, true)
+  const { categoriesMap } = useCategories(true)
   const currentPluginID = usePluginPageContext(v => v.currentPluginID)
   const setCurrentPluginID = usePluginPageContext(v => v.setCurrentPluginID)
   const { refreshPluginList } = useRefreshPluginList()
@@ -71,7 +71,7 @@ const PluginItem: FC<Props> = ({
   const isDifyVersionCompatible = useMemo(() => {
     if (!langGeniusVersionInfo.current_version)
       return true
-    return gte(langGeniusVersionInfo.current_version, declarationMeta.minimum_dify_version ?? '0.0.0')
+    return isEqualOrLaterThanVersion(langGeniusVersionInfo.current_version, declarationMeta.minimum_dify_version ?? '0.0.0')
   }, [declarationMeta.minimum_dify_version, langGeniusVersionInfo.current_version])
 
   const isDeprecated = useMemo(() => {
@@ -118,10 +118,10 @@ const PluginItem: FC<Props> = ({
           <div className="ml-3 w-0 grow">
             <div className="flex h-5 items-center">
               <Title title={title} />
-              {verified && <Verified className="ml-0.5 h-4 w-4" text={t('plugin.marketplace.verifiedTip')} />}
+              {verified && <Verified className="ml-0.5 h-4 w-4" text={t('marketplace.verifiedTip', { ns: 'plugin' })} />}
               {!isDifyVersionCompatible && (
                 <Tooltip popupContent={
-                  t('plugin.difyVersionNotCompatible', { minimalDifyVersion: declarationMeta.minimum_dify_version })
+                  t('difyVersionNotCompatible', { ns: 'plugin', minimalDifyVersion: declarationMeta.minimum_dify_version })
                 }
                 >
                   <RiErrorWarningLine color="red" className="ml-0.5 h-4 w-4 shrink-0 text-text-accent" />
@@ -164,14 +164,14 @@ const PluginItem: FC<Props> = ({
           />
           {category === PluginCategoryEnum.extension && (
             <>
-              <div className="system-xs-regular mx-2 text-text-quaternary">·</div>
-              <div className="system-xs-regular flex items-center gap-x-1 overflow-hidden text-text-tertiary">
+              <div className="mx-2 text-text-quaternary system-xs-regular">·</div>
+              <div className="flex items-center gap-x-1 overflow-hidden text-text-tertiary system-xs-regular">
                 <RiLoginCircleLine className="size-3 shrink-0" />
                 <span
                   className="truncate"
-                  title={t('plugin.endpointsEnabled', { num: endpoints_active })}
+                  title={t('endpointsEnabled', { ns: 'plugin', num: endpoints_active })}
                 >
-                  {t('plugin.endpointsEnabled', { num: endpoints_active })}
+                  {t('endpointsEnabled', { ns: 'plugin', num: endpoints_active })}
                 </span>
               </div>
             </>
@@ -183,7 +183,7 @@ const PluginItem: FC<Props> = ({
             && (
               <>
                 <a href={`https://github.com/${meta!.repo}`} target="_blank" className="flex items-center gap-1">
-                  <div className="system-2xs-medium-uppercase text-text-tertiary">{t('plugin.from')}</div>
+                  <div className="text-text-tertiary system-2xs-medium-uppercase">{t('from', { ns: 'plugin' })}</div>
                   <div className="flex items-center space-x-0.5 text-text-secondary">
                     <Github className="h-3 w-3" />
                     <div className="system-2xs-semibold-uppercase">GitHub</div>
@@ -196,8 +196,8 @@ const PluginItem: FC<Props> = ({
             && (
               <>
                 <a href={getMarketplaceUrl(`/plugins/${author}/${name}`, { theme })} target="_blank" className="flex items-center gap-0.5">
-                  <div className="system-2xs-medium-uppercase text-text-tertiary">
-                    {t('plugin.from')}
+                  <div className="text-text-tertiary system-2xs-medium-uppercase">
+                    {t('from', { ns: 'plugin' })}
                     {' '}
                     <span className="text-text-secondary">marketplace</span>
                   </div>
@@ -210,7 +210,7 @@ const PluginItem: FC<Props> = ({
               <>
                 <div className="flex items-center gap-1">
                   <RiHardDrive3Line className="h-3 w-3 text-text-tertiary" />
-                  <div className="system-2xs-medium-uppercase text-text-tertiary">Local Plugin</div>
+                  <div className="text-text-tertiary system-2xs-medium-uppercase">Local Plugin</div>
                 </div>
               </>
             )}
@@ -219,17 +219,17 @@ const PluginItem: FC<Props> = ({
               <>
                 <div className="flex items-center gap-1">
                   <RiBugLine className="h-3 w-3 text-text-warning" />
-                  <div className="system-2xs-medium-uppercase text-text-warning">Debugging Plugin</div>
+                  <div className="text-text-warning system-2xs-medium-uppercase">Debugging Plugin</div>
                 </div>
               </>
             )}
         </div>
         {/* Deprecated */}
         {source === PluginSource.marketplace && enable_marketplace && isDeprecated && (
-          <div className="system-2xs-medium-uppercase flex shrink-0 items-center gap-x-2">
+          <div className="flex shrink-0 items-center gap-x-2 system-2xs-medium-uppercase">
             <span className="text-text-tertiary">·</span>
             <span className="text-text-warning">
-              {t('plugin.deprecated')}
+              {t('deprecated', { ns: 'plugin' })}
             </span>
           </div>
         )}

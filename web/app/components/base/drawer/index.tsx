@@ -1,6 +1,5 @@
 'use client'
 import { Dialog, DialogBackdrop, DialogTitle } from '@headlessui/react'
-import { XMarkIcon } from '@heroicons/react/24/outline'
 import { useTranslation } from 'react-i18next'
 import { cn } from '@/utils/classnames'
 import Button from '../button'
@@ -81,7 +80,18 @@ export default function Drawer({
               )}
               {showClose && (
                 <DialogTitle className="mb-4 flex cursor-pointer items-center" as="div">
-                  <XMarkIcon className="h-4 w-4 text-text-tertiary" onClick={onClose} />
+                  <span
+                    className="i-heroicons-x-mark h-4 w-4 text-text-tertiary"
+                    onClick={onClose}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ')
+                        onClose()
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={t('operation.close', { ns: 'common' })}
+                    data-testid="close-icon"
+                  />
                 </DialogTitle>
               )}
             </div>
@@ -98,14 +108,14 @@ export default function Drawer({
                       onCancel?.()
                     }}
                   >
-                    {t('common.operation.cancel')}
+                    {t('operation.cancel', { ns: 'common' })}
                   </Button>
                   <Button
                     onClick={() => {
                       onOk?.()
                     }}
                   >
-                    {t('common.operation.save')}
+                    {t('operation.save', { ns: 'common' })}
                   </Button>
                 </div>
               ))}

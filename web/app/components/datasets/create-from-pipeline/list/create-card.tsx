@@ -1,10 +1,10 @@
 import { RiAddCircleLine } from '@remixicon/react'
-import { useRouter } from 'next/navigation'
 import * as React from 'react'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { trackEvent } from '@/app/components/base/amplitude'
-import Toast from '@/app/components/base/toast'
+import { toast } from '@/app/components/base/ui/toast'
+import { useRouter } from '@/next/navigation'
 import { useCreatePipelineDataset } from '@/service/knowledge/use-create-dataset'
 import { useInvalidDatasetList } from '@/service/knowledge/use-dataset'
 
@@ -20,10 +20,7 @@ const CreateCard = () => {
       onSuccess: (data) => {
         if (data) {
           const { id } = data
-          Toast.notify({
-            type: 'success',
-            message: t('datasetPipeline.creation.successTip'),
-          })
+          toast.success(t('creation.successTip', { ns: 'datasetPipeline' }))
           invalidDatasetList()
           trackEvent('create_datasets_from_scratch', {
             dataset_id: id,
@@ -32,10 +29,7 @@ const CreateCard = () => {
         }
       },
       onError: () => {
-        Toast.notify({
-          type: 'error',
-          message: t('datasetPipeline.creation.errorTip'),
-        })
+        toast.error(t('creation.errorTip', { ns: 'datasetPipeline' }))
       },
     })
   }, [createEmptyDataset, push, invalidDatasetList, t])
@@ -50,11 +44,11 @@ const CreateCard = () => {
           <RiAddCircleLine className="size-5 text-text-quaternary group-hover:text-text-accent" />
         </div>
         <div className="system-md-semibold truncate text-text-primary">
-          {t('datasetPipeline.creation.createFromScratch.title')}
+          {t('creation.createFromScratch.title', { ns: 'datasetPipeline' })}
         </div>
       </div>
       <p className="system-xs-regular line-clamp-3 px-4 py-1 text-text-tertiary">
-        {t('datasetPipeline.creation.createFromScratch.description')}
+        {t('creation.createFromScratch.description', { ns: 'datasetPipeline' })}
       </p>
     </div>
   )

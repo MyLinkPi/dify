@@ -19,7 +19,7 @@ import {
   PortalToFollowElemContent,
   PortalToFollowElemTrigger,
 } from '@/app/components/base/portal-to-follow-elem'
-import { useToastContext } from '@/app/components/base/toast'
+import { useToastContext } from '@/app/components/base/toast/context'
 import Indicator from '@/app/components/header/indicator'
 import { cn } from '@/utils/classnames'
 import Authorize from '../authorize'
@@ -117,7 +117,7 @@ const Authorized = ({
       await deletePluginCredential({ credential_id: pendingOperationCredentialId.current })
       notify({
         type: 'success',
-        message: t('common.api.actionSuccess'),
+        message: t('api.actionSuccess', { ns: 'common' }),
       })
       onUpdate?.()
       setDeleteCredentialId(null)
@@ -144,7 +144,7 @@ const Authorized = ({
       await setPluginDefaultCredential(id)
       notify({
         type: 'success',
-        message: t('common.api.actionSuccess'),
+        message: t('api.actionSuccess', { ns: 'common' }),
       })
       onUpdate?.()
     }
@@ -164,7 +164,7 @@ const Authorized = ({
       await updatePluginCredential(payload)
       notify({
         type: 'success',
-        message: t('common.api.actionSuccess'),
+        message: t('api.actionSuccess', { ns: 'common' }),
       })
       onUpdate?.()
     }
@@ -203,12 +203,12 @@ const Authorized = ({
 &nbsp;
                     {
                       credentials.length > 1
-                        ? t('plugin.auth.authorizations')
-                        : t('plugin.auth.authorization')
+                        ? t('auth.authorizations', { ns: 'plugin' })
+                        : t('auth.authorization', { ns: 'plugin' })
                     }
                     {
                       !!unavailableCredentials.length && (
-                        ` (${unavailableCredentials.length} ${t('plugin.auth.unavailable')})`
+                        ` (${unavailableCredentials.length} ${t('auth.unavailable', { ns: 'plugin' })})`
                       )
                     }
                     <RiArrowDownSLine className="ml-0.5 h-4 w-4" />
@@ -249,7 +249,7 @@ const Authorized = ({
                 !!oAuthCredentials.length && (
                   <div className="p-1">
                     <div className={cn(
-                      'system-xs-medium px-3 pb-0.5 pt-1 text-text-tertiary',
+                      'px-3 pb-0.5 pt-1 text-text-tertiary system-xs-medium',
                       showItemSelectedIcon && 'pl-7',
                     )}
                     >
@@ -279,7 +279,7 @@ const Authorized = ({
                 !!apiKeyCredentials.length && (
                   <div className="p-1">
                     <div className={cn(
-                      'system-xs-medium px-3 pb-0.5 pt-1 text-text-tertiary',
+                      'px-3 pb-0.5 pt-1 text-text-tertiary system-xs-medium',
                       showItemSelectedIcon && 'pl-7',
                     )}
                     >
@@ -332,7 +332,7 @@ const Authorized = ({
         deleteCredentialId && (
           <Confirm
             isShow
-            title={t('datasetDocuments.list.delete.title')}
+            title={t('list.delete.title', { ns: 'datasetDocuments' })}
             isDisabled={doingAction}
             onCancel={closeConfirm}
             onConfirm={handleConfirm}

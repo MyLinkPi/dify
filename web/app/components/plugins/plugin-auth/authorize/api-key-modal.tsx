@@ -16,7 +16,7 @@ import AuthForm from '@/app/components/base/form/form-scenarios/auth'
 import { FormTypeEnum } from '@/app/components/base/form/types'
 import Loading from '@/app/components/base/loading'
 import Modal from '@/app/components/base/modal/modal'
-import { useToastContext } from '@/app/components/base/toast'
+import { useToastContext } from '@/app/components/base/toast/context'
 import { ReadmeEntrance } from '../../readme-panel/entrance'
 import { ReadmeShowType } from '../../readme-panel/store'
 import {
@@ -64,7 +64,7 @@ const ApiKeyModal = ({
       {
         type: FormTypeEnum.textInput,
         name: '__name__',
-        label: t('plugin.auth.authorizationName'),
+        label: t('auth.authorizationName', { ns: 'plugin' }),
         required: false,
       },
       ...mergedData,
@@ -115,7 +115,7 @@ const ApiKeyModal = ({
       }
       notify({
         type: 'success',
-        message: t('common.api.actionSuccess'),
+        message: t('api.actionSuccess', { ns: 'common' }),
       })
 
       onClose?.()
@@ -129,8 +129,8 @@ const ApiKeyModal = ({
   return (
     <Modal
       size="md"
-      title={t('plugin.auth.useApiAuth')}
-      subTitle={t('plugin.auth.useApiAuthDesc')}
+      title={t('auth.useApiAuth', { ns: 'plugin' })}
+      subTitle={t('auth.useApiAuthDesc', { ns: 'plugin' })}
       onClose={onClose}
       onCancel={onClose}
       footerSlot={

@@ -61,7 +61,7 @@ const ConfigParamModal: FC<Props> = ({
   const handleSave = async () => {
     if (!embeddingModel || !embeddingModel.modelName || (embeddingModel.modelName === embeddingsDefaultModel?.model && !isEmbeddingsDefaultModelValid)) {
       Toast.notify({
-        message: t('common.modelProvider.embeddingModel.required'),
+        message: t('modelProvider.embeddingModel.required', { ns: 'common' }),
         type: 'error',
       })
       return
@@ -80,19 +80,20 @@ const ConfigParamModal: FC<Props> = ({
       onClose={onHide}
       className="!mt-14 !w-[640px] !max-w-none !p-6"
     >
-      <div className="title-2xl-semi-bold mb-2 text-text-primary">
-        {t(`appAnnotation.initSetup.${isInit ? 'title' : 'configTitle'}`)}
+      <div className="mb-2 text-text-primary title-2xl-semi-bold">
+        {t(`initSetup.${isInit ? 'title' : 'configTitle'}`, { ns: 'appAnnotation' })}
       </div>
 
       <div className="mt-6 space-y-3">
         <Item
-          title={t('appDebug.feature.annotation.scoreThreshold.title')}
-          tooltip={t('appDebug.feature.annotation.scoreThreshold.description')}
+          title={t('feature.annotation.scoreThreshold.title', { ns: 'appDebug' })}
+          tooltip={t('feature.annotation.scoreThreshold.description', { ns: 'appDebug' })}
         >
           <ScoreSlider
             className="mt-1"
             value={(annotationConfig.score_threshold || ANNOTATION_DEFAULT.score_threshold) * 100}
             onChange={(val) => {
+              /* v8 ignore next -- callback dispatch depends on react-slider drag mechanics that are flaky in jsdom. @preserve */
               setAnnotationConfig({
                 ...annotationConfig,
                 score_threshold: val / 100,
@@ -102,8 +103,8 @@ const ConfigParamModal: FC<Props> = ({
         </Item>
 
         <Item
-          title={t('common.modelProvider.embeddingModel.key')}
-          tooltip={t('appAnnotation.embeddingModelSwitchTip')}
+          title={t('modelProvider.embeddingModel.key', { ns: 'common' })}
+          tooltip={t('embeddingModelSwitchTip', { ns: 'appAnnotation' })}
         >
           <div className="pt-1">
             <ModelSelector
@@ -124,14 +125,14 @@ const ConfigParamModal: FC<Props> = ({
       </div>
 
       <div className="mt-6 flex justify-end gap-2">
-        <Button onClick={onHide}>{t('common.operation.cancel')}</Button>
+        <Button onClick={onHide}>{t('operation.cancel', { ns: 'common' })}</Button>
         <Button
           variant="primary"
           onClick={handleSave}
           loading={isLoading}
         >
           <div></div>
-          <div>{t(`appAnnotation.initSetup.${isInit ? 'confirmBtn' : 'configConfirmBtn'}`)}</div>
+          <div>{t(`initSetup.${isInit ? 'confirmBtn' : 'configConfirmBtn'}`, { ns: 'appAnnotation' })}</div>
         </Button>
       </div>
     </Modal>

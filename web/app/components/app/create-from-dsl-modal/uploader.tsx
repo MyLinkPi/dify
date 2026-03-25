@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next'
 import { useContext } from 'use-context-selector'
 import ActionButton from '@/app/components/base/action-button'
 import { Yaml as YamlIcon } from '@/app/components/base/icons/src/public/files'
-import { ToastContext } from '@/app/components/base/toast'
+import { ToastContext } from '@/app/components/base/toast/context'
 import { cn } from '@/utils/classnames'
 import { formatFileSize } from '@/utils/format'
 
@@ -58,9 +58,9 @@ const Uploader: FC<Props> = ({
     setDragging(false)
     if (!e.dataTransfer)
       return
-    const files = [...e.dataTransfer.files]
+    const files = Array.from(e.dataTransfer.files)
     if (files.length > 1) {
-      notify({ type: 'error', message: t('datasetCreation.stepOne.uploader.validation.count') })
+      notify({ type: 'error', message: t('stepOne.uploader.validation.count', { ns: 'datasetCreation' }) })
       return
     }
     updateFile(files[0])
@@ -113,15 +113,15 @@ const Uploader: FC<Props> = ({
             <div className="flex w-full items-center justify-center space-x-2">
               <RiUploadCloud2Line className="h-6 w-6 text-text-tertiary" />
               <div className="text-text-tertiary">
-                {t('app.dslUploader.button')}
-                <span className="cursor-pointer pl-1 text-text-accent" onClick={selectHandle}>{t('app.dslUploader.browse')}</span>
+                {t('dslUploader.button', { ns: 'app' })}
+                <span className="cursor-pointer pl-1 text-text-accent" onClick={selectHandle}>{t('dslUploader.browse', { ns: 'app' })}</span>
               </div>
             </div>
             {dragging && <div ref={dragRef} className="absolute left-0 top-0 h-full w-full" />}
           </div>
         )}
         {file && (
-          <div className={cn('group flex items-center rounded-lg border-[0.5px] border-components-panel-border bg-components-panel-on-panel-item-bg shadow-xs', ' hover:bg-components-panel-on-panel-item-bg-hover')}>
+          <div className={cn('group flex items-center rounded-lg border-[0.5px] border-components-panel-border bg-components-panel-on-panel-item-bg shadow-xs', 'hover:bg-components-panel-on-panel-item-bg-hover')}>
             <div className="flex items-center justify-center p-3">
               <YamlIcon className="h-6 w-6 shrink-0" />
             </div>

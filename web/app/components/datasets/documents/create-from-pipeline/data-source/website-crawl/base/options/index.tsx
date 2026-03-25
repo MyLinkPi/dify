@@ -8,12 +8,12 @@ import { useAppForm } from '@/app/components/base/form'
 import BaseField from '@/app/components/base/form/form-scenarios/base/field'
 import { generateZodSchema } from '@/app/components/base/form/form-scenarios/base/utils'
 import { ArrowDownRoundFill } from '@/app/components/base/icons/src/vender/solid/general'
-import Toast from '@/app/components/base/toast'
+import { toast } from '@/app/components/base/ui/toast'
 import { useConfigurations, useInitialData } from '@/app/components/rag-pipeline/hooks/use-input-fields'
 import { CrawlStep } from '@/models/datasets'
 import { cn } from '@/utils/classnames'
 
-const I18N_PREFIX = 'datasetCreation.stepOne.website'
+const I18N_PREFIX = 'stepOne.website'
 
 type OptionsProps = {
   variables: RAGPipelineVariables
@@ -44,10 +44,7 @@ const Options = ({
           const issues = result.error.issues
           const firstIssue = issues[0]
           const errorMessage = `"${firstIssue.path.join('.')}" ${firstIssue.message}`
-          Toast.notify({
-            type: 'error',
-            message: errorMessage,
-          })
+          toast.error(errorMessage)
           return errorMessage
         }
         return undefined
@@ -89,7 +86,7 @@ const Options = ({
           onClick={foldToggle}
         >
           <span className="system-sm-semibold-uppercase text-text-secondary">
-            {t(`${I18N_PREFIX}.options`)}
+            {t(`${I18N_PREFIX}.options`, { ns: 'datasetCreation' })}
           </span>
           <ArrowDownRoundFill className={cn('h-4 w-4 shrink-0 text-text-quaternary', fold && '-rotate-90')} />
         </div>
@@ -102,7 +99,7 @@ const Options = ({
           spinnerClassName="!ml-0"
         >
           <RiPlayLargeLine className="size-4" />
-          <span className="px-0.5">{!isRunning ? t(`${I18N_PREFIX}.run`) : t(`${I18N_PREFIX}.running`)}</span>
+          <span className="px-0.5">{!isRunning ? t(`${I18N_PREFIX}.run`, { ns: 'datasetCreation' }) : t(`${I18N_PREFIX}.running`, { ns: 'datasetCreation' })}</span>
         </Button>
       </div>
       {!fold && (

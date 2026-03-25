@@ -10,9 +10,7 @@ import type { IOtherOptions } from '@/service/base'
 import type { SchemaTypeDefinition } from '@/service/use-common'
 import type { FlowType } from '@/types/common'
 import type { VarInInspect } from '@/types/workflow'
-import {
-  noop,
-} from 'es-toolkit/compat'
+import { noop } from 'es-toolkit/function'
 import { useContext } from 'react'
 import {
   useStore as useZustandStore,
@@ -24,14 +22,15 @@ export type AvailableNodesMetaData = {
   nodes: NodeDefault[]
   nodesMap?: Record<BlockEnum, NodeDefault<any>>
 }
+export type SyncDraftCallback = {
+  onSuccess?: () => void
+  onError?: () => void
+  onSettled?: () => void
+}
 export type CommonHooksFnMap = {
   doSyncWorkflowDraft: (
     notRefreshWhenSyncError?: boolean,
-    callback?: {
-      onSuccess?: () => void
-      onError?: () => void
-      onSettled?: () => void
-    },
+    callback?: SyncDraftCallback,
   ) => Promise<void>
   syncWorkflowDraftWhenPageClose: () => void
   handleRefreshWorkflowDraft: () => void

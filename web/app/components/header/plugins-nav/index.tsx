@@ -1,11 +1,11 @@
 'use client'
 
-import Link from 'next/link'
-import { useSelectedLayoutSegment } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import { Group } from '@/app/components/base/icons/src/vender/other'
 import Indicator from '@/app/components/header/indicator'
 import { usePluginTaskStatus } from '@/app/components/plugins/plugin-page/plugin-tasks/hooks'
+import Link from '@/next/link'
+import { useSelectedLayoutSegment } from '@/next/navigation'
 import { cn } from '@/utils/classnames'
 import DownloadingIcon from './downloading-icon'
 
@@ -55,7 +55,7 @@ const PluginsNav = ({
             )
           }
         </div>
-        <span className="px-0.5">{t('common.menus.plugins')}</span>
+        <span className="px-0.5">{t('menus.plugins', { ns: 'common' })}</span>
       </div>
     </Link>
   )

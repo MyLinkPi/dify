@@ -24,24 +24,25 @@ const RenameModal: FC<IRenameModalProps> = ({
 }) => {
   const { t } = useTranslation()
   const [tempName, setTempName] = useState(name)
+  const conversationNamePlaceholder = t('chat.conversationNamePlaceholder', { ns: 'common' }) || ''
 
   return (
     <Modal
-      title={t('common.chat.renameConversation')}
+      title={t('chat.renameConversation', { ns: 'common' })}
       isShow={isShow}
       onClose={onClose}
     >
-      <div className="mt-6 text-sm font-medium leading-[21px] text-text-primary">{t('common.chat.conversationName')}</div>
+      <div className="mt-6 text-sm font-medium leading-[21px] text-text-primary">{t('chat.conversationName', { ns: 'common' })}</div>
       <Input
         className="mt-2 h-10 w-full"
         value={tempName}
         onChange={e => setTempName(e.target.value)}
-        placeholder={t('common.chat.conversationNamePlaceholder') || ''}
+        placeholder={conversationNamePlaceholder}
       />
 
       <div className="mt-10 flex justify-end">
-        <Button className="mr-2 shrink-0" onClick={onClose}>{t('common.operation.cancel')}</Button>
-        <Button variant="primary" className="shrink-0" onClick={() => onSave(tempName)} loading={saveLoading}>{t('common.operation.save')}</Button>
+        <Button className="mr-2 shrink-0" onClick={onClose}>{t('operation.cancel', { ns: 'common' })}</Button>
+        <Button variant="primary" className="shrink-0" onClick={() => onSave(tempName)} loading={saveLoading}>{t('operation.save', { ns: 'common' })}</Button>
       </div>
     </Modal>
   )

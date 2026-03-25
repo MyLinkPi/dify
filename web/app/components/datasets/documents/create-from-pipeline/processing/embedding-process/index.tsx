@@ -10,8 +10,6 @@ import {
   RiLoader2Fill,
   RiTerminalBoxLine,
 } from '@remixicon/react'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import * as React from 'react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -26,6 +24,8 @@ import DocumentFileIcon from '@/app/components/datasets/common/document-file-ico
 import { useProviderContext } from '@/context/provider-context'
 import { useDatasetApiAccessUrl } from '@/hooks/use-api-access-url'
 import { DatasourceType } from '@/models/pipeline'
+import Link from '@/next/link'
+import { useRouter } from '@/next/navigation'
 import { useIndexingStatusBatch, useProcessRule } from '@/service/knowledge/use-dataset'
 import { useInvalidDocumentList } from '@/service/knowledge/use-document'
 import { cn } from '@/utils/classnames'
@@ -139,11 +139,11 @@ const EmbeddingProcess = ({
             <>
               <RiLoader2Fill className="size-4 animate-spin" />
               <span>
-                {isEmbeddingWaiting ? t('datasetDocuments.embedding.waiting') : t('datasetDocuments.embedding.processing')}
+                {isEmbeddingWaiting ? t('embedding.waiting', { ns: 'datasetDocuments' }) : t('embedding.processing', { ns: 'datasetDocuments' })}
               </span>
             </>
           )}
-          {isEmbeddingCompleted && t('datasetDocuments.embedding.completed')}
+          {isEmbeddingCompleted && t('embedding.completed', { ns: 'datasetDocuments' })}
         </div>
         {
           enableBilling && plan.type !== Plan.team && (
@@ -152,7 +152,7 @@ const EmbeddingProcess = ({
                 <RiAedFill className="size-4 text-text-primary-on-surface" />
               </div>
               <div className="system-md-medium grow text-text-primary">
-                {t('billing.plansCommon.documentProcessingPriorityUpgrade')}
+                {t('plansCommon.documentProcessingPriorityUpgrade', { ns: 'billing' })}
               </div>
               <UpgradeBtn loc="knowledge-speed-up" />
             </div>
@@ -245,7 +245,7 @@ const EmbeddingProcess = ({
           variant="primary"
           onClick={navToDocumentList}
         >
-          <span className="px-0.5">{t('datasetCreation.stepThree.navTo')}</span>
+          <span className="px-0.5">{t('stepThree.navTo', { ns: 'datasetCreation' })}</span>
           <RiArrowRightLine className="size-4 stroke-current stroke-1" />
         </Button>
       </div>
