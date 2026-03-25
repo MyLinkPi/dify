@@ -23,7 +23,7 @@ x-shared-env: &shared-api-worker-env
   LOG_FILE_MAX_SIZE: ${LOG_FILE_MAX_SIZE:-20}
   LOG_FILE_BACKUP_COUNT: ${LOG_FILE_BACKUP_COUNT:-5}
   LOG_DATEFORMAT: ${LOG_DATEFORMAT:-%Y-%m-%d %H:%M:%S}
-  LOG_TZ: ${LOG_TZ:-UTC}
+  LOG_TZ: ${LOG_TZ:-Asia/Shanghai}
   DEBUG: ${DEBUG:-false}
   FLASK_DEBUG: ${FLASK_DEBUG:-false}
   ENABLE_REQUEST_LOGGING: ${ENABLE_REQUEST_LOGGING:-False}
@@ -734,6 +734,7 @@ services:
     image: langgenius/dify-api:1.13.2
     restart: always
     environment:
+      TZ: ${LOG_TZ:-Asia/Shanghai}
       # Use the shared environment variables.
       <<: *shared-api-worker-env
       # Startup mode, 'api' starts the API server.
@@ -776,6 +777,7 @@ services:
     image: langgenius/dify-api:1.13.2
     restart: always
     environment:
+      TZ: ${LOG_TZ:-Asia/Shanghai}
       # Use the shared environment variables.
       <<: *shared-api-worker-env
       # Startup mode, 'worker' starts the Celery worker for processing all queues.
@@ -815,6 +817,7 @@ services:
     image: langgenius/dify-api:1.13.2
     restart: always
     environment:
+      TZ: ${LOG_TZ:-Asia/Shanghai}
       # Use the shared environment variables.
       <<: *shared-api-worker-env
       # Startup mode, 'worker_beat' starts the Celery beat for scheduling periodic tasks.
@@ -845,6 +848,7 @@ services:
     image: langgenius/dify-web:1.13.2
     restart: always
     environment:
+      TZ: ${LOG_TZ:-Asia/Shanghai}
       CONSOLE_API_URL: ${CONSOLE_API_URL:-}
       APP_API_URL: ${APP_API_URL:-}
       AMPLITUDE_API_KEY: ${AMPLITUDE_API_KEY:-}
@@ -875,6 +879,7 @@ services:
       - postgresql
     restart: always
     environment:
+      TZ: ${LOG_TZ:-Asia/Shanghai}
       POSTGRES_USER: ${DB_USERNAME:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-difyai123456}
       POSTGRES_DB: ${DB_DATABASE:-dify}
@@ -914,6 +919,7 @@ services:
       - mysql
     restart: always
     environment:
+      TZ: ${LOG_TZ:-Asia/Shanghai}
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-difyai123456}
       MYSQL_DATABASE: ${DB_DATABASE:-dify}
     command: >
@@ -942,6 +948,7 @@ services:
     image: redis:6-alpine
     restart: always
     environment:
+      TZ: ${LOG_TZ:-Asia/Shanghai}
       REDISCLI_AUTH: ${REDIS_PASSWORD:-difyai123456}
     volumes:
       # Mount the redis data directory to the container.
@@ -960,6 +967,7 @@ services:
     image: langgenius/dify-sandbox:0.2.12
     restart: always
     environment:
+      TZ: ${LOG_TZ:-Asia/Shanghai}
       # The DifySandbox configurations
       # Make sure you are changing this key for your deployment with a strong key.
       # You can generate a strong key using `openssl rand -base64 42`.
@@ -984,6 +992,7 @@ services:
     image: langgenius/dify-plugin-daemon:0.5.4-local
     restart: always
     environment:
+      TZ: ${LOG_TZ:-Asia/Shanghai}
       # Use the shared environment variables.
       <<: *shared-api-worker-env
       DB_DATABASE: ${DB_PLUGIN_DATABASE:-dify_plugin}
@@ -1066,6 +1075,7 @@ services:
         "cp /docker-entrypoint-mount.sh /docker-entrypoint.sh && sed -i 's/\r$$//' /docker-entrypoint.sh && chmod +x /docker-entrypoint.sh && /docker-entrypoint.sh",
       ]
     environment:
+      TZ: ${LOG_TZ:-Asia/Shanghai}
       # pls clearly modify the squid env vars to fit your network environment.
       HTTP_PORT: ${SSRF_HTTP_PORT:-3128}
       COREDUMP_DIR: ${SSRF_COREDUMP_DIR:-/var/spool/squid}
@@ -1118,6 +1128,7 @@ services:
         "cp /docker-entrypoint-mount.sh /docker-entrypoint.sh && sed -i 's/\r$$//' /docker-entrypoint.sh && chmod +x /docker-entrypoint.sh && /docker-entrypoint.sh",
       ]
     environment:
+      TZ: ${LOG_TZ:-Asia/Shanghai}
       NGINX_SERVER_NAME: ${NGINX_SERVER_NAME:-_}
       NGINX_HTTPS_ENABLED: ${NGINX_HTTPS_ENABLED:-false}
       NGINX_SSL_PORT: ${NGINX_SSL_PORT:-443}
@@ -1151,6 +1162,7 @@ services:
       # Mount the Weaviate data directory to the con tainer.
       - ./volumes/weaviate:/var/lib/weaviate
     environment:
+      TZ: ${LOG_TZ:-Asia/Shanghai}
       # The Weaviate configurations
       # You can refer to the [Weaviate](https://weaviate.io/developers/weaviate/config-refs/env-vars) documentation for more information.
       PERSISTENCE_DATA_PATH: ${WEAVIATE_PERSISTENCE_DATA_PATH:-/var/lib/weaviate}
@@ -1180,6 +1192,7 @@ services:
       - ./volumes/oceanbase/conf:/root/.obd/cluster
       - ./volumes/oceanbase/init.d:/root/boot/init.d
     environment:
+      TZ: ${LOG_TZ:-Asia/Shanghai}
       OB_MEMORY_LIMIT: ${OCEANBASE_MEMORY_LIMIT:-6G}
       OB_SYS_PASSWORD: ${OCEANBASE_VECTOR_PASSWORD:-difyai123456}
       OB_TENANT_PASSWORD: ${OCEANBASE_VECTOR_PASSWORD:-difyai123456}
@@ -1211,6 +1224,7 @@ services:
     volumes:
       - ./volumes/seekdb:/var/lib/oceanbase
     environment:
+      TZ: ${LOG_TZ:-Asia/Shanghai}
       ROOT_PASSWORD: ${OCEANBASE_VECTOR_PASSWORD:-difyai123456}
       MEMORY_LIMIT: ${SEEKDB_MEMORY_LIMIT:-2G}
       REPORTER: dify-ai-seekdb
@@ -1236,6 +1250,7 @@ services:
     volumes:
       - ./volumes/qdrant:/qdrant/storage
     environment:
+      TZ: ${LOG_TZ:-Asia/Shanghai}
       QDRANT_API_KEY: ${QDRANT_API_KEY:-difyai123456}
 
   # The Couchbase vector store.
@@ -1282,6 +1297,7 @@ services:
       - pgvector
     restart: always
     environment:
+      TZ: ${LOG_TZ:-Asia/Shanghai}
       PGUSER: ${PGVECTOR_PGUSER:-postgres}
       # The password for the default postgres user.
       POSTGRES_PASSWORD: ${PGVECTOR_POSTGRES_PASSWORD:-difyai123456}
@@ -1333,6 +1349,7 @@ services:
       - pgvecto-rs
     restart: always
     environment:
+      TZ: ${LOG_TZ:-Asia/Shanghai}
       PGUSER: ${PGVECTOR_PGUSER:-postgres}
       # The password for the default postgres user.
       POSTGRES_PASSWORD: ${PGVECTOR_POSTGRES_PASSWORD:-difyai123456}
@@ -1357,6 +1374,7 @@ services:
     volumes:
       - ./volumes/chroma:/chroma/chroma
     environment:
+      TZ: ${LOG_TZ:-Asia/Shanghai}
       CHROMA_SERVER_AUTHN_CREDENTIALS: ${CHROMA_SERVER_AUTHN_CREDENTIALS:-difyai123456}
       CHROMA_SERVER_AUTHN_PROVIDER: ${CHROMA_SERVER_AUTHN_PROVIDER:-chromadb.auth.token_authn.TokenAuthenticationServerProvider}
       IS_PERSISTENT: ${CHROMA_IS_PERSISTENT:-TRUE}
@@ -1379,7 +1397,7 @@ services:
     entrypoint: ["/custom-entrypoint.sh"]
     tty: true
     environment:
-      TZ: ${IRIS_TIMEZONE:-UTC}
+      TZ: ${LOG_TZ:-Asia/Shanghai}
       ISC_DATA_DIRECTORY: /durable/iris
 
   # Oracle vector database
@@ -1394,6 +1412,7 @@ services:
         target: /opt/oracle/oradata
       - ./startupscripts:/opt/oracle/scripts/startup
     environment:
+      TZ: ${LOG_TZ:-Asia/Shanghai}
       ORACLE_PWD: ${ORACLE_PWD:-Dify123456}
       ORACLE_CHARACTERSET: ${ORACLE_CHARACTERSET:-AL32UTF8}
 
@@ -1404,6 +1423,7 @@ services:
     profiles:
       - milvus
     environment:
+      TZ: ${LOG_TZ:-Asia/Shanghai}
       ETCD_AUTO_COMPACTION_MODE: ${ETCD_AUTO_COMPACTION_MODE:-revision}
       ETCD_AUTO_COMPACTION_RETENTION: ${ETCD_AUTO_COMPACTION_RETENTION:-1000}
       ETCD_QUOTA_BACKEND_BYTES: ${ETCD_QUOTA_BACKEND_BYTES:-4294967296}
@@ -1425,6 +1445,7 @@ services:
     profiles:
       - milvus
     environment:
+      TZ: ${LOG_TZ:-Asia/Shanghai}
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin}
     volumes:
@@ -1445,6 +1466,7 @@ services:
       - milvus
     command: ["milvus", "run", "standalone"]
     environment:
+      TZ: ${LOG_TZ:-Asia/Shanghai}
       ETCD_ENDPOINTS: ${ETCD_ENDPOINTS:-etcd:2379}
       MINIO_ADDRESS: ${MINIO_ADDRESS:-minio:9000}
       common.security.authorizationEnabled: ${MILVUS_AUTHORIZATION_ENABLED:-true}
@@ -1472,6 +1494,7 @@ services:
     profiles:
       - opensearch
     environment:
+      TZ: ${LOG_TZ:-Asia/Shanghai}
       discovery.type: ${OPENSEARCH_DISCOVERY_TYPE:-single-node}
       bootstrap.memory_lock: ${OPENSEARCH_BOOTSTRAP_MEMORY_LOCK:-true}
       OPENSEARCH_JAVA_OPTS: -Xms${OPENSEARCH_JAVA_OPTS_MIN:-512m} -Xmx${OPENSEARCH_JAVA_OPTS_MAX:-1024m}
@@ -1494,6 +1517,7 @@ services:
     profiles:
       - opensearch
     environment:
+      TZ: ${LOG_TZ:-Asia/Shanghai}
       OPENSEARCH_HOSTS: '["https://opensearch:9200"]'
     volumes:
       - ./volumes/opensearch/opensearch_dashboards.yml:/usr/share/opensearch-dashboards/config/opensearch_dashboards.yml
@@ -1510,6 +1534,7 @@ services:
     privileged: true
     restart: always
     environment:
+      TZ: ${LOG_TZ:-Asia/Shanghai}
       GS_USERNAME: ${OPENGAUSS_USER:-postgres}
       GS_PASSWORD: ${OPENGAUSS_PASSWORD:-Dify@123}
       GS_PORT: ${OPENGAUSS_PORT:-6600}
@@ -1564,6 +1589,7 @@ services:
       - ./elasticsearch/docker-entrypoint.sh:/docker-entrypoint-mount.sh
       - dify_es01_data:/usr/share/elasticsearch/data
     environment:
+      TZ: ${LOG_TZ:-Asia/Shanghai}
       ELASTIC_PASSWORD: ${ELASTICSEARCH_PASSWORD:-elastic}
       VECTOR_STORE: ${VECTOR_STORE:-}
       cluster.name: dify-es-cluster
@@ -1598,6 +1624,7 @@ services:
       - elasticsearch
     restart: always
     environment:
+      TZ: ${LOG_TZ:-Asia/Shanghai}
       XPACK_ENCRYPTEDSAVEDOBJECTS_ENCRYPTIONKEY: d1a66dfd-c4d3-4a0a-8290-2abcb83ab3aa
       NO_PROXY: localhost,127.0.0.1,elasticsearch,kibana
       XPACK_SECURITY_ENABLED: "true"
