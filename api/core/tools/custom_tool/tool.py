@@ -388,6 +388,9 @@ class ApiTool(Tool):
         # assemble request
         headers = self.assembling_request(tool_parameters)
 
+        if conversation_id:
+            headers["X-Conversation-Id"] = conversation_id
+
         # do http request
         response = self.do_http_request(self.api_bundle.server_url, self.api_bundle.method, headers, tool_parameters)
 

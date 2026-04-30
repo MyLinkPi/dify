@@ -781,6 +781,7 @@ services:
     volumes:
       # Mount the storage directory to the container, for storing user files.
       - ./volumes/app/storage:/app/api/storage
+      - ../api/core/tools/custom_tool/tool.py:/app/api/core/tools/custom_tool/tool.py
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
       interval: 30s
@@ -827,6 +828,7 @@ services:
     volumes:
       # Mount the storage directory to the container, for storing user files.
       - ./volumes/app/storage:/app/api/storage
+      - ../api/core/tools/custom_tool/tool.py:/app/api/core/tools/custom_tool/tool.py
     healthcheck:
       test: ["CMD-SHELL", "celery -A celery_healthcheck.celery inspect ping"]
       interval: ${COMPOSE_WORKER_HEALTHCHECK_INTERVAL:-30s}
@@ -866,6 +868,8 @@ services:
         required: false
       redis:
         condition: service_started
+    volumes:
+      - ../api/core/tools/custom_tool/tool.py:/app/api/core/tools/custom_tool/tool.py
     healthcheck:
       test: ["CMD-SHELL", "celery -A celery_healthcheck.celery inspect ping"]
       interval: ${COMPOSE_WORKER_HEALTHCHECK_INTERVAL:-30s}
@@ -947,7 +951,7 @@ services:
       timeout: 3s
       retries: 60
     ports:
-      - '${EXPOSE_DB_PORT:-5432}:5432'
+      - "${EXPOSE_DB_PORT:-5432}:5432"
 
   # The mysql database.
   db_mysql:

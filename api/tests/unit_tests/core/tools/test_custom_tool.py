@@ -284,3 +284,42 @@ def test_do_http_request_handles_file_upload_and_invoke_paths(monkeypatch):
     messages = list(tool.invoke(user_id="u1", tool_parameters={}))
     assert len(messages) == 1
     assert messages[0].message.text == "plain"
+
+
+def test_invoke_includes_conversation_id_header(monkeypatch):
+    tool = _build_tool()
+    captured = {}
+
+    def _fake_assembling_request(parameters):
+        return {"Authorization": "Bearer k"}
+
+    def _fake_do_http_request(url, method, headers, parameters):
+        captured["headers"] = headers.copy()
+        return httpx.Response(200, text="ok")
+
+    monkeypatch.setattr(tool, "assembling_request", _fake_assembling_request)
+    monkeypatch.setattr(tool, "do_http_request", _fake_do_http_request)
+    monkeypatch.setattr(tool, "validate_and_parse_response", lambda _: ParsedResponse("ok", False))
+
+    list(tool.invoke(user_id="u1", tool_parameters={}, conversation_id="conv-123"))
+    assert captured["headers"]["X-Conversation-Id"] == "conv-123"
+    assert captured["headers"]["Authorization"] == "Bearer k"
+
+
+def test_invoke_omits_conversation_id_header_when_none(monkeypatch):
+    tool = _build_tool()
+    captured = {}
+
+    def _fake_assembling_request(parameters):
+        return {"Authorization": "Bearer k"}
+
+    def _fake_do_http_request(url, method, headers, parameters):
+        captured["headers"] = headers.copy()
+        return httpx.Response(200, text="ok")
+
+    monkeypatch.setattr(tool, "assembling_request", _fake_assembling_request)
+    monkeypatch.setattr(tool, "do_http_request", _fake_do_http_request)
+    monkeypatch.setattr(tool, "validate_and_parse_response", lambda _: ParsedResponse("ok", False))
+
+    list(tool.invoke(user_id="u1", tool_parameters={}, conversation_id=None))
+    assert "X-Conversation-Id" not in captured["headers"]
