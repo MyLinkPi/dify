@@ -782,6 +782,8 @@ services:
       # Mount the storage directory to the container, for storing user files.
       - ./volumes/app/storage:/app/api/storage
       - ../api/core/tools/custom_tool/tool.py:/app/api/core/tools/custom_tool/tool.py
+      - ../api/services/plugin/plugin_service.py:/app/api/services/plugin/plugin_service.py
+      - ../api/controllers/console/workspace/plugin.py:/app/api/controllers/console/workspace/plugin.py
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
       interval: 30s
@@ -829,6 +831,8 @@ services:
       # Mount the storage directory to the container, for storing user files.
       - ./volumes/app/storage:/app/api/storage
       - ../api/core/tools/custom_tool/tool.py:/app/api/core/tools/custom_tool/tool.py
+      - ../api/services/plugin/plugin_service.py:/app/api/services/plugin/plugin_service.py
+      - ../api/controllers/console/workspace/plugin.py:/app/api/controllers/console/workspace/plugin.py
     healthcheck:
       test: ["CMD-SHELL", "celery -A celery_healthcheck.celery inspect ping"]
       interval: ${COMPOSE_WORKER_HEALTHCHECK_INTERVAL:-30s}
@@ -870,6 +874,8 @@ services:
         condition: service_started
     volumes:
       - ../api/core/tools/custom_tool/tool.py:/app/api/core/tools/custom_tool/tool.py
+      - ../api/services/plugin/plugin_service.py:/app/api/services/plugin/plugin_service.py
+      - ../api/controllers/console/workspace/plugin.py:/app/api/controllers/console/workspace/plugin.py
     healthcheck:
       test: ["CMD-SHELL", "celery -A celery_healthcheck.celery inspect ping"]
       interval: ${COMPOSE_WORKER_HEALTHCHECK_INTERVAL:-30s}

@@ -399,20 +399,56 @@ class PluginService:
 
     @staticmethod
     def install_from_local_pkg(tenant_id: str, plugin_unique_identifiers: Sequence[str]):
+        """
+        Install plugins from local packages. When a plugin with the same
+        plugin_id (author/name) is already installed, the method performs an
+        upgrade instead of a fresh install so that existing configuration is
+        preserved by the plugin daemon.
+        """
         PluginService._check_marketplace_only_permission()
 
         manager = PluginInstaller()
 
+        decode_responses: dict[str, PluginDecodeResponse] = {}
         for plugin_unique_identifier in plugin_unique_identifiers:
             resp = manager.decode_plugin_from_identifier(tenant_id, plugin_unique_identifier)
             PluginService._check_plugin_installation_scope(resp.verification)
+            decode_responses[plugin_unique_identifier] = resp
 
-        return manager.install_from_identifiers(
-            tenant_id,
-            plugin_unique_identifiers,
-            PluginInstallationSource.Package,
-            [{}],
-        )
+        installed_plugins = manager.list_plugins(tenant_id)
+        installed_plugin_map: dict[str, PluginEntity] = {
+            p.plugin_id: p for p in installed_plugins
+        }
+
+        fresh_install_identifiers: list[str] = []
+        fresh_install_metas: list[dict] = []
+
+        for plugin_unique_identifier in plugin_unique_identifiers:
+            resp = decode_responses[plugin_unique_identifier]
+            plugin_id = f"{resp.manifest.author}/{resp.manifest.name}"
+            existing = installed_plugin_map.get(plugin_id)
+
+            if existing and existing.plugin_unique_identifier != plugin_unique_identifier:
+                manager.upgrade_plugin(
+                    tenant_id,
+                    existing.plugin_unique_identifier,
+                    plugin_unique_identifier,
+                    PluginInstallationSource.Package,
+                    {"plugin_unique_identifier": plugin_unique_identifier},
+                )
+            else:
+                fresh_install_identifiers.append(plugin_unique_identifier)
+                fresh_install_metas.append({})
+
+        if fresh_install_identifiers:
+            return manager.install_from_identifiers(
+                tenant_id,
+                fresh_install_identifiers,
+                PluginInstallationSource.Package,
+                fresh_install_metas,
+            )
+
+        return None
 
     @staticmethod
     def install_from_github(tenant_id: str, plugin_unique_identifier: str, repo: str, version: str, package: str):
@@ -514,9 +550,38 @@ class PluginService:
 
     @staticmethod
     def uninstall(tenant_id: str, plugin_installation_id: str) -> bool:
+        """
+        Soft uninstall: returns success without actually removing the plugin.
+
+        The frontend install-from-local-package flow calls uninstall before
+        installing a new version.  Since ``install_from_local_pkg`` now
+        performs a proper upgrade (preserving credentials and daemon-side
+        config), an actual uninstall here would destroy the state that the
+        upgrade relies on.  Until the frontend is updated to stop calling
+        uninstall before install, this method is a no-op.
+
+        For a real uninstall, use ``force_uninstall`` (exposed via the
+        ``/workspaces/current/plugin/uninstall/force`` endpoint).
+        """
+        logger.warning(
+            "Soft uninstall called for plugin_installation_id=%s (tenant=%s). "
+            "Skipping actual uninstall. Use force_uninstall for real removal.",
+            plugin_installation_id,
+            tenant_id,
+        )
+        return True
+
+    @staticmethod
+    def force_uninstall(tenant_id: str, plugin_installation_id: str) -> bool:
+        """
+        Force uninstall: actually removes the plugin and cleans up
+        associated credentials.  This is the original uninstall logic.
+
+        Should only be called when the user explicitly intends to remove
+        a plugin, not as part of an upgrade flow.
+        """
         manager = PluginInstaller()
 
-        # Get plugin info before uninstalling to delete associated credentials
         plugins = manager.list_plugins(tenant_id)
         plugin = next((p for p in plugins if p.installation_id == plugin_installation_id), None)
 
@@ -541,7 +606,6 @@ class PluginService:
                 )
             )
 
-            # Delete provider credentials that match this plugin
             credential_ids = session.scalars(
                 select(ProviderCredential.id).where(
                     ProviderCredential.tenant_id == tenant_id,
