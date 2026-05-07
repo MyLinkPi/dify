@@ -11,8 +11,8 @@ x-shared-env: &shared-api-worker-env
   TRIGGER_URL: ${TRIGGER_URL:-http://localhost}
   APP_API_URL: ${APP_API_URL:-}
   APP_WEB_URL: ${APP_WEB_URL:-}
-  FILES_URL: ${FILES_URL:-}
-  INTERNAL_FILES_URL: ${INTERNAL_FILES_URL:-}
+  FILES_URL: ${FILES_URL:-http://localhost:5001}
+  INTERNAL_FILES_URL: ${INTERNAL_FILES_URL:-http://api:5001}
   LANG: ${LANG:-C.UTF-8}
   LC_ALL: ${LC_ALL:-C.UTF-8}
   PYTHONIOENCODING: ${PYTHONIOENCODING:-utf-8}
