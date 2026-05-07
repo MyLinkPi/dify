@@ -176,29 +176,13 @@ class TestInstallFromLocalPkg:
 
 
 class TestUninstall:
-    def test_soft_uninstall_returns_true_without_removing(self):
-        result = PluginService.uninstall("t1", "install-1")
-
-        assert result is True
-
-    @patch(f"{MODULE}.PluginInstaller")
-    def test_soft_uninstall_does_not_call_daemon_uninstall(self, mock_installer_cls):
-        installer = mock_installer_cls.return_value
-
-        PluginService.uninstall("t1", "install-1")
-
-        installer.uninstall.assert_not_called()
-        installer.list_plugins.assert_not_called()
-
-
-class TestForceUninstall:
     @patch(f"{MODULE}.PluginInstaller")
     def test_direct_uninstall_when_plugin_not_found(self, mock_installer_cls):
         installer = mock_installer_cls.return_value
         installer.list_plugins.return_value = []
         installer.uninstall.return_value = True
 
-        result = PluginService.force_uninstall("t1", "install-1")
+        result = PluginService.uninstall("t1", "install-1")
 
         assert result is True
         installer.uninstall.assert_called_once_with("t1", "install-1")
@@ -227,7 +211,7 @@ class TestForceUninstall:
         mock_db.engine.__exit__ = MagicMock(return_value=False)
 
         with patch(f"{MODULE}.Session", return_value=mock_session):
-            result = PluginService.force_uninstall("t1", "install-1")
+            result = PluginService.uninstall("t1", "install-1")
 
         assert result is True
         installer.uninstall.assert_called_once_with("t1", "install-1")

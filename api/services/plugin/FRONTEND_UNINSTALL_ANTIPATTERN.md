@@ -28,6 +28,7 @@ const handleInstall = async () => {
 后端 `install_from_local_pkg` 已实现升级逻辑：当同名插件（相同 `plugin_id`，即 `author/name`）已安装时，调用 `upgrade_plugin` 执行升级，**保留插件的配置和凭证**。
 
 但前端的 uninstall 调用会：
+
 1. 从 plugin daemon 中移除旧插件
 2. 删除数据库中的 `ProviderCredential`、`TenantPreferredModelProvider` 等关联数据
 3. 清除 `ProviderCredentialsCache` 缓存
@@ -50,26 +51,37 @@ Marketplace 和 GitHub 安装流程使用专门的 `upgrade_plugin_with_marketpl
 
 前端应该只调用 `installPackageFromLocal(uniqueIdentifier)`，让后端 `install_from_local_pkg` 自行判断：
 
-| 场景 | 后端行为 |
-|------|---------|
-| 插件未安装 | 新装 (`install_from_identifiers`) |
+| 场景                     | 后端行为                          |
+| ------------------------ | --------------------------------- |
+| 插件未安装               | 新装 (`install_from_identifiers`) |
 | 同名插件已安装，版本不同 | 升级 (`upgrade_plugin`)，保留配置 |
-| 相同 identifier 已安装 | 幂等，不重复安装 |
+| 相同 identifier 已安装   | 幂等，不重复安装                  |
 
 ## 当前的临时解决方案
 
-由于前端代码暂不能修改，后端采取了以下临时措施：
+由于前端代码暂不能修改，后端在控制器层通过 **Referer 头** 区分请求来源：
 
-1. **`PluginService.uninstall`** 改为软卸载（no-op），直接返回 `success: True`，不实际删除任何数据
-2. **`PluginService.force_uninstall`** 保留原始卸载逻辑，通过新端点 `/workspaces/current/plugin/uninstall/force` 暴露
-3. 前端调用 `/workspaces/current/plugin/uninstall` 时，后端静默忽略，确保后续的 `install_from_local_pkg` 能正确执行升级
+- 当请求的 `Referer` 包含 `/plugins`（即来自插件管理页面）时，跳过卸载，直接返回 `{"success": true}`
+- 当请求来自其他页面（如应用详情页等）时，正常执行卸载逻辑
 
-## 影响范围
+这样既保护了插件管理页面中的升级流程不被破坏，又保留了其他页面中用户主动卸载的正常功能。
 
-| 调用方 | 端点 | 行为 |
-|--------|------|------|
-| 前端 install-from-local-package | `POST /workspaces/current/plugin/uninstall` | 软卸载（no-op） |
-| 需要真正卸载的场景 | `POST /workspaces/current/plugin/uninstall/force` | 真正卸载 |
+### 实现细节
+
+```python
+# api/controllers/console/workspace/plugin.py
+referer = request.headers.get("Referer", "")
+if "/plugins" in referer:
+    return {"success": True}
+```
+
+### 影响范围
+
+| 请求来源                   | Referer           | 行为               |
+| -------------------------- | ----------------- | ------------------ |
+| 插件管理页面（/plugins）   | 包含 `/plugins`   | 跳过卸载，返回成功 |
+| 其他页面                   | 不包含 `/plugins` | 正常卸载           |
+| 无 Referer（API 直接调用） | 空                | 正常卸载           |
 
 ## 修复建议
 
@@ -86,4 +98,4 @@ const handleInstall = async () => {
 }
 ```
 
-修复后，后端可以恢复 `uninstall` 端点的原始行为，并移除 `force_uninstall` 端点。
+修复后，后端可以移除控制器层的 Referer 检查逻辑。

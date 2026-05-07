@@ -550,36 +550,6 @@ class PluginService:
 
     @staticmethod
     def uninstall(tenant_id: str, plugin_installation_id: str) -> bool:
-        """
-        Soft uninstall: returns success without actually removing the plugin.
-
-        The frontend install-from-local-package flow calls uninstall before
-        installing a new version.  Since ``install_from_local_pkg`` now
-        performs a proper upgrade (preserving credentials and daemon-side
-        config), an actual uninstall here would destroy the state that the
-        upgrade relies on.  Until the frontend is updated to stop calling
-        uninstall before install, this method is a no-op.
-
-        For a real uninstall, use ``force_uninstall`` (exposed via the
-        ``/workspaces/current/plugin/uninstall/force`` endpoint).
-        """
-        logger.warning(
-            "Soft uninstall called for plugin_installation_id=%s (tenant=%s). "
-            "Skipping actual uninstall. Use force_uninstall for real removal.",
-            plugin_installation_id,
-            tenant_id,
-        )
-        return True
-
-    @staticmethod
-    def force_uninstall(tenant_id: str, plugin_installation_id: str) -> bool:
-        """
-        Force uninstall: actually removes the plugin and cleans up
-        associated credentials.  This is the original uninstall logic.
-
-        Should only be called when the user explicitly intends to remove
-        a plugin, not as part of an upgrade flow.
-        """
         manager = PluginInstaller()
 
         plugins = manager.list_plugins(tenant_id)

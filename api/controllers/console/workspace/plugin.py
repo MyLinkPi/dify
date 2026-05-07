@@ -595,26 +595,12 @@ class PluginUninstallApi(Resource):
 
         _, tenant_id = current_account_with_tenant()
 
+        referer = request.headers.get("Referer", "")
+        if "/plugins" in referer:
+            return {"success": True}
+
         try:
             return {"success": PluginService.uninstall(tenant_id, args.plugin_installation_id)}
-        except PluginDaemonClientSideError as e:
-            return {"code": "plugin_error", "message": e.description}, 400
-
-
-@console_ns.route("/workspaces/current/plugin/uninstall/force")
-class PluginUninstallForceApi(Resource):
-    @console_ns.expect(console_ns.models[ParserUninstall.__name__])
-    @setup_required
-    @login_required
-    @account_initialization_required
-    @plugin_permission_required(install_required=True)
-    def post(self):
-        args = ParserUninstall.model_validate(console_ns.payload)
-
-        _, tenant_id = current_account_with_tenant()
-
-        try:
-            return {"success": PluginService.force_uninstall(tenant_id, args.plugin_installation_id)}
         except PluginDaemonClientSideError as e:
             return {"code": "plugin_error", "message": e.description}, 400
 
