@@ -124,12 +124,19 @@ class FunctionCallAgentRunner(BaseAgentRunner):
                         tool_calls.extend(self.extract_tool_calls(chunk) or [])
                         tool_call_names = ";".join([tool_call[1] for tool_call in tool_calls])
                         try:
+                            tool_call_inputs_dict: dict[str, list[Any]] = {}
+                            for _, name, args in tool_calls:
+                                tool_call_inputs_dict.setdefault(name, []).append(args)
                             tool_call_inputs = json.dumps(
-                                {tool_call[1]: tool_call[2] for tool_call in tool_calls}, ensure_ascii=False
+                                tool_call_inputs_dict
+                                if any(len(v) > 1 for v in tool_call_inputs_dict.values())
+                                else {k: v[0] for k, v in tool_call_inputs_dict.items()},
+                                ensure_ascii=False,
                             )
                         except TypeError:
-                            # fallback: force ASCII to handle non-serializable objects
-                            tool_call_inputs = json.dumps({tool_call[1]: tool_call[2] for tool_call in tool_calls})
+                            tool_call_inputs = json.dumps(
+                                {tool_call[1]: tool_call[2] for tool_call in tool_calls}
+                            )
 
                     if chunk.delta.message and chunk.delta.message.content:
                         if isinstance(chunk.delta.message.content, list):
@@ -151,12 +158,19 @@ class FunctionCallAgentRunner(BaseAgentRunner):
                     tool_calls.extend(self.extract_blocking_tool_calls(result) or [])
                     tool_call_names = ";".join([tool_call[1] for tool_call in tool_calls])
                     try:
+                        tool_call_inputs_dict2: dict[str, list[Any]] = {}
+                        for _, name, args in tool_calls:
+                            tool_call_inputs_dict2.setdefault(name, []).append(args)
                         tool_call_inputs = json.dumps(
-                            {tool_call[1]: tool_call[2] for tool_call in tool_calls}, ensure_ascii=False
+                            tool_call_inputs_dict2
+                            if any(len(v) > 1 for v in tool_call_inputs_dict2.values())
+                            else {k: v[0] for k, v in tool_call_inputs_dict2.items()},
+                            ensure_ascii=False,
                         )
                     except TypeError:
-                        # fallback: force ASCII to handle non-serializable objects
-                        tool_call_inputs = json.dumps({tool_call[1]: tool_call[2] for tool_call in tool_calls})
+                        tool_call_inputs = json.dumps(
+                            {tool_call[1]: tool_call[2] for tool_call in tool_calls}
+                        )
 
                 if result.usage:
                     increase_usage(llm_usage, result.usage)
@@ -277,19 +291,31 @@ class FunctionCallAgentRunner(BaseAgentRunner):
                     )
 
             if len(tool_responses) > 0:
-                # save agent thought
+                observation_dict: dict[str, list[Any]] = {}
+                for tool_response in tool_responses:
+                    observation_dict.setdefault(tool_response["tool_call_name"], []).append(
+                        tool_response["tool_response"]
+                    )
+                observation = (
+                    observation_dict
+                    if any(len(v) > 1 for v in observation_dict.values())
+                    else {k: v[0] for k, v in observation_dict.items()}
+                )
+                meta_dict: dict[str, list[Any]] = {}
+                for tool_response in tool_responses:
+                    meta_dict.setdefault(tool_response["tool_call_name"], []).append(tool_response["meta"])
+                tool_invoke_meta = (
+                    meta_dict
+                    if any(len(v) > 1 for v in meta_dict.values())
+                    else {k: v[0] for k, v in meta_dict.items()}
+                )
                 self.save_agent_thought(
                     agent_thought_id=agent_thought_id,
                     tool_name="",
                     tool_input="",
                     thought="",
-                    tool_invoke_meta={
-                        tool_response["tool_call_name"]: tool_response["meta"] for tool_response in tool_responses
-                    },
-                    observation={
-                        tool_response["tool_call_name"]: tool_response["tool_response"]
-                        for tool_response in tool_responses
-                    },
+                    tool_invoke_meta=tool_invoke_meta,
+                    observation=observation,
                     answer="",
                     messages_ids=message_file_ids,
                 )

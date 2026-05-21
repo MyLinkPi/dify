@@ -336,7 +336,7 @@ class TestOrganizeHistory:
 
         mock_db_session.execute.return_value.scalars.return_value.all.return_value = [msg]
         mocker.patch.object(module, "extract_thread_messages", return_value=[msg])
-        mocker.patch("uuid.uuid4", return_value="uuid")
+        mocker.patch("uuid.uuid4", side_effect=lambda: "uuid-2")
 
         result = runner.organize_agent_history([])
         assert isinstance(result, list)
@@ -367,7 +367,7 @@ class TestOrganizeHistory:
 
         mock_db_session.execute.return_value.scalars.return_value.all.return_value = [msg]
         mocker.patch.object(module, "extract_thread_messages", return_value=[msg])
-        mocker.patch("uuid.uuid4", return_value="uuid")
+        mocker.patch("uuid.uuid4", side_effect=lambda: "uuid-3")
 
         result = runner.organize_agent_history([])
         assert isinstance(result, list)
@@ -565,7 +565,8 @@ class TestAdditionalCoverage:
 
         mock_db_session.execute.return_value.scalars.return_value.all.return_value = [msg]
         mocker.patch.object(module, "extract_thread_messages", return_value=[msg])
-        mocker.patch("uuid.uuid4", return_value="uuid")
+        uuids = iter(["id-1", "id-2"])
+        mocker.patch("uuid.uuid4", side_effect=lambda: next(uuids))
 
         result = runner.organize_agent_history([])
         assert isinstance(result, list)
@@ -789,7 +790,7 @@ class TestBaseAgentRunnerCoverage:
 
         mock_db_session.execute.return_value.scalars.return_value.all.return_value = [msg]
         mocker.patch.object(module, "extract_thread_messages", return_value=[msg])
-        mocker.patch("uuid.uuid4", return_value="uuid")
+        mocker.patch("uuid.uuid4", side_effect=lambda: "uuid-4")
 
         mocker.patch.object(
             runner,
@@ -800,3 +801,83 @@ class TestBaseAgentRunnerCoverage:
         result = runner.organize_agent_history([])
 
         assert any(isinstance(item, module.ToolPromptMessage) for item in result)
+
+
+class TestDuplicateToolCallId:
+    def test_duplicate_tool_names_produce_unique_ids(self, runner, mock_db_session, mocker):
+        thought = mocker.MagicMock(
+            tool="tool1;tool1",
+            tool_input=json.dumps({"tool1": {"x": 1}}),
+            observation=json.dumps({"tool1": "obs"}),
+            thought="thinking",
+        )
+        msg = mocker.MagicMock(id="m_dup", agent_thoughts=[thought], answer=None, app_model_config=None)
+
+        mock_db_session.execute.return_value.scalars.return_value.all.return_value = [msg]
+        mocker.patch.object(module, "extract_thread_messages", return_value=[msg])
+
+        uuids = iter(["id-a", "id-b"])
+        mocker.patch("uuid.uuid4", side_effect=lambda: next(uuids))
+
+        result = runner.organize_agent_history([])
+
+        assistant_msgs = [m for m in result if isinstance(m, module.AssistantPromptMessage) and m.tool_calls]
+        assert len(assistant_msgs) == 1
+        tool_call_ids = [tc.id for tc in assistant_msgs[0].tool_calls]
+        assert len(tool_call_ids) == 2
+        assert tool_call_ids[0] != tool_call_ids[1]
+
+        tool_msgs = [m for m in result if isinstance(m, module.ToolPromptMessage)]
+        assert len(tool_msgs) == 2
+        tool_msg_ids = [tm.tool_call_id for tm in tool_msgs]
+        assert tool_msg_ids[0] != tool_msg_ids[1]
+
+    def test_empty_tool_name_filtered_out(self, runner, mock_db_session, mocker):
+        thought = mocker.MagicMock(
+            tool="tool1;;tool2",
+            tool_input=json.dumps({"tool1": {}, "tool2": {}}),
+            observation=json.dumps({"tool1": "o1", "tool2": "o2"}),
+            thought="thinking",
+        )
+        msg = mocker.MagicMock(id="m_empty", agent_thoughts=[thought], answer=None, app_model_config=None)
+
+        mock_db_session.execute.return_value.scalars.return_value.all.return_value = [msg]
+        mocker.patch.object(module, "extract_thread_messages", return_value=[msg])
+
+        uuids = iter(["id-1", "id-2"])
+        mocker.patch("uuid.uuid4", side_effect=lambda: next(uuids))
+
+        result = runner.organize_agent_history([])
+
+        assistant_msgs = [m for m in result if isinstance(m, module.AssistantPromptMessage) and m.tool_calls]
+        assert len(assistant_msgs) == 1
+        tool_call_names = [tc.function.name for tc in assistant_msgs[0].tool_calls]
+        assert "" not in tool_call_names
+        assert tool_call_names == ["tool1", "tool2"]
+
+    def test_tool_call_ids_match_between_assistant_and_tool_messages(self, runner, mock_db_session, mocker):
+        thought = mocker.MagicMock(
+            tool="tool1;tool2",
+            tool_input=json.dumps({"tool1": {"a": 1}, "tool2": {"b": 2}}),
+            observation=json.dumps({"tool1": "o1", "tool2": "o2"}),
+            thought="thinking",
+        )
+        msg = mocker.MagicMock(id="m_match", agent_thoughts=[thought], answer=None, app_model_config=None)
+
+        mock_db_session.execute.return_value.scalars.return_value.all.return_value = [msg]
+        mocker.patch.object(module, "extract_thread_messages", return_value=[msg])
+
+        uuids = iter(["id-x", "id-y"])
+        mocker.patch("uuid.uuid4", side_effect=lambda: next(uuids))
+
+        result = runner.organize_agent_history([])
+
+        assistant_msgs = [m for m in result if isinstance(m, module.AssistantPromptMessage) and m.tool_calls]
+        tool_msgs = [m for m in result if isinstance(m, module.ToolPromptMessage)]
+
+        assert len(assistant_msgs) == 1
+        assert len(tool_msgs) == 2
+
+        assistant_ids = [tc.id for tc in assistant_msgs[0].tool_calls]
+        tool_ids = [tm.tool_call_id for tm in tool_msgs]
+        assert assistant_ids == tool_ids

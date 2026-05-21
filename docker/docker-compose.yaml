@@ -781,6 +781,8 @@ services:
     volumes:
       # Mount the storage directory to the container, for storing user files.
       - ./volumes/app/storage:/app/api/storage
+      - ../api/core/agent/base_agent_runner.py:/app/api/core/agent/base_agent_runner.py
+      - ../api/core/agent/fc_agent_runner.py:/app/api/core/agent/fc_agent_runner.py
       - ../api/core/tools/custom_tool/tool.py:/app/api/core/tools/custom_tool/tool.py
       - ../api/services/plugin/plugin_service.py:/app/api/services/plugin/plugin_service.py
       - ../api/controllers/console/workspace/plugin.py:/app/api/controllers/console/workspace/plugin.py
@@ -830,6 +832,8 @@ services:
     volumes:
       # Mount the storage directory to the container, for storing user files.
       - ./volumes/app/storage:/app/api/storage
+      - ../api/core/agent/base_agent_runner.py:/app/api/core/agent/base_agent_runner.py
+      - ../api/core/agent/fc_agent_runner.py:/app/api/core/agent/fc_agent_runner.py
       - ../api/core/tools/custom_tool/tool.py:/app/api/core/tools/custom_tool/tool.py
       - ../api/services/plugin/plugin_service.py:/app/api/services/plugin/plugin_service.py
       - ../api/controllers/console/workspace/plugin.py:/app/api/controllers/console/workspace/plugin.py
@@ -873,6 +877,8 @@ services:
       redis:
         condition: service_started
     volumes:
+      - ../api/core/agent/base_agent_runner.py:/app/api/core/agent/base_agent_runner.py
+      - ../api/core/agent/fc_agent_runner.py:/app/api/core/agent/fc_agent_runner.py
       - ../api/core/tools/custom_tool/tool.py:/app/api/core/tools/custom_tool/tool.py
       - ../api/services/plugin/plugin_service.py:/app/api/services/plugin/plugin_service.py
       - ../api/controllers/console/workspace/plugin.py:/app/api/controllers/console/workspace/plugin.py

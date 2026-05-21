@@ -453,6 +453,7 @@ class BaseAgentRunner(AppRunner):
                     tool_names_raw = agent_thought.tool
                     if tool_names_raw:
                         tool_names = tool_names_raw.split(";")
+                        tool_names = [name for name in tool_names if name]
                         tool_calls: list[AssistantPromptMessage.ToolCall] = []
                         tool_call_response: list[ToolPromptMessage] = []
                         tool_input_payload = agent_thought.tool_input
@@ -473,9 +474,12 @@ class BaseAgentRunner(AppRunner):
                         else:
                             tool_responses = dict.fromkeys(tool_names, observation_payload)
 
+                        seen_tool_call_ids: set[str] = set()
                         for tool in tool_names:
-                            # generate a uuid for tool call
                             tool_call_id = str(uuid.uuid4())
+                            while tool_call_id in seen_tool_call_ids:
+                                tool_call_id = str(uuid.uuid4())
+                            seen_tool_call_ids.add(tool_call_id)
                             tool_calls.append(
                                 AssistantPromptMessage.ToolCall(
                                     id=tool_call_id,
