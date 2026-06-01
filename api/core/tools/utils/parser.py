@@ -260,6 +260,8 @@ class ApiBasedToolSchemaParser:
             else:
                 # For regular arrays, return ARRAY type instead of None
                 return ToolParameter.ToolParameterType.ARRAY
+        elif typ == "object":
+            return ToolParameter.ToolParameterType.OBJECT
         else:
             return None
 
