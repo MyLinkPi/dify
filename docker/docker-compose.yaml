@@ -787,6 +787,8 @@ services:
       - ../api/core/tools/utils/parser.py:/app/api/core/tools/utils/parser.py
       - ../api/services/plugin/plugin_service.py:/app/api/services/plugin/plugin_service.py
       - ../api/controllers/console/workspace/plugin.py:/app/api/controllers/console/workspace/plugin.py
+      - ../api/services/agent_service.py:/app/api/services/agent_service.py
+      - ../api/core/ops/ops_trace_manager.py:/app/api/core/ops/ops_trace_manager.py
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
       interval: 30s
@@ -839,6 +841,8 @@ services:
       - ../api/core/tools/utils/parser.py:/app/api/core/tools/utils/parser.py
       - ../api/services/plugin/plugin_service.py:/app/api/services/plugin/plugin_service.py
       - ../api/controllers/console/workspace/plugin.py:/app/api/controllers/console/workspace/plugin.py
+      - ../api/services/agent_service.py:/app/api/services/agent_service.py
+      - ../api/core/ops/ops_trace_manager.py:/app/api/core/ops/ops_trace_manager.py
     healthcheck:
       test: ["CMD-SHELL", "celery -A celery_healthcheck.celery inspect ping"]
       interval: ${COMPOSE_WORKER_HEALTHCHECK_INTERVAL:-30s}
@@ -885,6 +889,8 @@ services:
       - ../api/core/tools/utils/parser.py:/app/api/core/tools/utils/parser.py
       - ../api/services/plugin/plugin_service.py:/app/api/services/plugin/plugin_service.py
       - ../api/controllers/console/workspace/plugin.py:/app/api/controllers/console/workspace/plugin.py
+      - ../api/services/agent_service.py:/app/api/services/agent_service.py
+      - ../api/core/ops/ops_trace_manager.py:/app/api/core/ops/ops_trace_manager.py
     healthcheck:
       test: ["CMD-SHELL", "celery -A celery_healthcheck.celery inspect ping"]
       interval: ${COMPOSE_WORKER_HEALTHCHECK_INTERVAL:-30s}

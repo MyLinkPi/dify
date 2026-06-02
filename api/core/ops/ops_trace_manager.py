@@ -1169,6 +1169,8 @@ class TraceTask:
             if tool_name in agent_thought.tools:
                 created_time = agent_thought.created_at
                 tool_meta_data = agent_thought.tool_meta.get(tool_name, {})
+                if isinstance(tool_meta_data, list):
+                    tool_meta_data = tool_meta_data[-1] if tool_meta_data else {}
                 tool_config = tool_meta_data.get("tool_config", {})
                 time_cost = tool_meta_data.get("time_cost", 0)
                 end_time = created_time + timedelta(seconds=time_cost)

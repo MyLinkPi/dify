@@ -103,6 +103,8 @@ class AgentService:
                 tool_input = tool_inputs.get(tool_name, {})
                 tool_output = tool_outputs.get(tool_name, {})
                 tool_meta_data = tool_meta.get(tool_name, {})
+                if isinstance(tool_meta_data, list):
+                    tool_meta_data = tool_meta_data[-1] if tool_meta_data else {}
                 tool_config = tool_meta_data.get("tool_config", {})
                 if tool_config.get("tool_provider_type", "") != "dataset-retrieval":
                     tool_icon = ToolManager.get_tool_icon(
