@@ -881,3 +881,99 @@ class TestDuplicateToolCallId:
         assistant_ids = [tc.id for tc in assistant_msgs[0].tool_calls]
         tool_ids = [tm.tool_call_id for tm in tool_msgs]
         assert assistant_ids == tool_ids
+
+
+# ==========================================================
+# Bug fix: observation as JSON array should not crash
+# ==========================================================
+
+
+class TestOrganizeHistoryNonDictObservation:
+    """Regression tests for when observation is a JSON array or other non-dict value."""
+
+    def test_observation_json_array_content_serialized_to_str(self, runner, mock_db_session, mocker):
+        list_observation = json.dumps([
+            {"key": "value1", "amount": "100"},
+            {"key": "value2", "amount": "200"},
+        ])
+        thought = mocker.MagicMock(
+            tool="tool1",
+            tool_input=json.dumps({"tool1": {"q": "test"}}),
+            observation=list_observation,
+            thought="thinking",
+        )
+        msg = mocker.MagicMock(id="m_arr", agent_thoughts=[thought], answer=None, app_model_config=None)
+
+        mock_db_session.execute.return_value.scalars.return_value.all.return_value = [msg]
+        mocker.patch.object(module, "extract_thread_messages", return_value=[msg])
+        mocker.patch("uuid.uuid4", side_effect=lambda: "uuid-arr")
+
+        result = runner.organize_agent_history([])
+
+        tool_msgs = [m for m in result if isinstance(m, module.ToolPromptMessage)]
+        assert len(tool_msgs) == 1
+        assert isinstance(tool_msgs[0].content, str)
+        assert json.loads(tool_msgs[0].content) == json.loads(list_observation)
+
+    def test_observation_json_array_with_multiple_tools(self, runner, mock_db_session, mocker):
+        list_observation = json.dumps([{"item": 1}, {"item": 2}])
+        thought = mocker.MagicMock(
+            tool="tool1;tool2",
+            tool_input=json.dumps({"tool1": {}, "tool2": {}}),
+            observation=list_observation,
+            thought="thinking",
+        )
+        msg = mocker.MagicMock(id="m_arr2", agent_thoughts=[thought], answer=None, app_model_config=None)
+
+        mock_db_session.execute.return_value.scalars.return_value.all.return_value = [msg]
+        mocker.patch.object(module, "extract_thread_messages", return_value=[msg])
+        uuids = iter(["id-a1", "id-a2"])
+        mocker.patch("uuid.uuid4", side_effect=lambda: next(uuids))
+
+        result = runner.organize_agent_history([])
+
+        tool_msgs = [m for m in result if isinstance(m, module.ToolPromptMessage)]
+        assert len(tool_msgs) == 2
+        for tm in tool_msgs:
+            assert isinstance(tm.content, str)
+
+    def test_observation_dict_still_works(self, runner, mock_db_session, mocker):
+        dict_observation = json.dumps({"tool1": "response_data"})
+        thought = mocker.MagicMock(
+            tool="tool1",
+            tool_input=json.dumps({"tool1": {"q": "test"}}),
+            observation=dict_observation,
+            thought="thinking",
+        )
+        msg = mocker.MagicMock(id="m_dict", agent_thoughts=[thought], answer=None, app_model_config=None)
+
+        mock_db_session.execute.return_value.scalars.return_value.all.return_value = [msg]
+        mocker.patch.object(module, "extract_thread_messages", return_value=[msg])
+        mocker.patch("uuid.uuid4", side_effect=lambda: "uuid-dict")
+
+        result = runner.organize_agent_history([])
+
+        tool_msgs = [m for m in result if isinstance(m, module.ToolPromptMessage)]
+        assert len(tool_msgs) == 1
+        assert isinstance(tool_msgs[0].content, str)
+        assert tool_msgs[0].content == "response_data"
+
+    def test_observation_non_string_value_serialized(self, runner, mock_db_session, mocker):
+        numeric_observation = json.dumps(42)
+        thought = mocker.MagicMock(
+            tool="tool1",
+            tool_input=json.dumps({"tool1": {}}),
+            observation=numeric_observation,
+            thought="thinking",
+        )
+        msg = mocker.MagicMock(id="m_num", agent_thoughts=[thought], answer=None, app_model_config=None)
+
+        mock_db_session.execute.return_value.scalars.return_value.all.return_value = [msg]
+        mocker.patch.object(module, "extract_thread_messages", return_value=[msg])
+        mocker.patch("uuid.uuid4", side_effect=lambda: "uuid-num")
+
+        result = runner.organize_agent_history([])
+
+        tool_msgs = [m for m in result if isinstance(m, module.ToolPromptMessage)]
+        assert len(tool_msgs) == 1
+        assert isinstance(tool_msgs[0].content, str)

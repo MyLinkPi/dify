@@ -2,7 +2,7 @@ import json
 import logging
 import uuid
 from decimal import Decimal
-from typing import Union, cast
+from typing import Any, Union, cast
 
 from sqlalchemy import func, select
 
@@ -466,13 +466,14 @@ class BaseAgentRunner(AppRunner):
                             tool_inputs = {tool: {} for tool in tool_names}
 
                         observation_payload = agent_thought.observation
+                        tool_responses: dict[str, Any] = {}
                         if observation_payload:
                             try:
-                                tool_responses = json.loads(observation_payload)
+                                parsed = json.loads(observation_payload)
+                                if isinstance(parsed, dict):
+                                    tool_responses = parsed
                             except Exception:
-                                tool_responses = dict.fromkeys(tool_names, observation_payload)
-                        else:
-                            tool_responses = dict.fromkeys(tool_names, observation_payload)
+                                logger.debug("Failed to parse observation as JSON dict: %s", observation_payload)
 
                         seen_tool_call_ids: set[str] = set()
                         for tool in tool_names:
@@ -490,9 +491,15 @@ class BaseAgentRunner(AppRunner):
                                     ),
                                 )
                             )
+                            raw_content = tool_responses.get(tool, observation_payload)
+                            content = (
+                                raw_content
+                                if isinstance(raw_content, str)
+                                else json.dumps(raw_content, ensure_ascii=False)
+                            )
                             tool_call_response.append(
                                 ToolPromptMessage(
-                                    content=tool_responses.get(tool, agent_thought.observation),
+                                    content=content,
                                     name=tool,
                                     tool_call_id=tool_call_id,
                                 )
