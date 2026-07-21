@@ -221,7 +221,42 @@ def test_sanitize_default_value_and_type_detection():
         ApiBasedToolSchemaParser._get_tool_parameter_type({"type": "array", "items": {"type": "string"}})
         == ToolParameter.ToolParameterType.ARRAY
     )
-    assert ApiBasedToolSchemaParser._get_tool_parameter_type({"type": "object"}) is None
+    assert ApiBasedToolSchemaParser._get_tool_parameter_type({"type": "object"}) == ToolParameter.ToolParameterType.OBJECT
+
+
+def test_get_tool_parameter_type_with_oneof_anyof():
+    # oneOf: take the first non-null type
+    assert (
+        ApiBasedToolSchemaParser._get_tool_parameter_type({"oneOf": [{"type": "integer"}, {"type": "null"}]})
+        == ToolParameter.ToolParameterType.NUMBER
+    )
+    assert (
+        ApiBasedToolSchemaParser._get_tool_parameter_type({"oneOf": [{"type": "string"}, {"type": "integer"}]})
+        == ToolParameter.ToolParameterType.STRING
+    )
+    assert (
+        ApiBasedToolSchemaParser._get_tool_parameter_type({"oneOf": [{"type": "null"}, {"type": "string"}]})
+        == ToolParameter.ToolParameterType.STRING
+    )
+    # anyOf is also supported
+    assert (
+        ApiBasedToolSchemaParser._get_tool_parameter_type({"anyOf": [{"type": "boolean"}, {"type": "null"}]})
+        == ToolParameter.ToolParameterType.BOOLEAN
+    )
+    # oneOf nested inside "schema" (common for query/path parameters in OpenAPI 3.0)
+    assert (
+        ApiBasedToolSchemaParser._get_tool_parameter_type(
+            {"name": "value", "in": "query", "schema": {"oneOf": [{"type": "integer"}, {"type": "string"}]}}
+        )
+        == ToolParameter.ToolParameterType.NUMBER
+    )
+    # all-null oneOf falls back to None
+    assert ApiBasedToolSchemaParser._get_tool_parameter_type({"oneOf": [{"type": "null"}]}) is None
+    # explicit "type" takes precedence over oneOf
+    assert (
+        ApiBasedToolSchemaParser._get_tool_parameter_type({"type": "string", "oneOf": [{"type": "integer"}]})
+        == ToolParameter.ToolParameterType.STRING
+    )
 
 
 def test_parse_openapi_to_tool_bundle_server_env_and_refs(app):

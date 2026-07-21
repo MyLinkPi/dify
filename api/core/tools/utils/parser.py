@@ -247,6 +247,22 @@ class ApiBasedToolSchemaParser:
         elif "schema" in parameter and "type" in parameter["schema"]:
             typ = parameter["schema"]["type"]
 
+        # support oneOf/anyOf type detection: take the first non-null type,
+        # also check inside the nested "schema" for query/path parameters
+        if typ is None:
+            schema = parameter.get("schema") or {}
+            for union_key in ("oneOf", "anyOf"):
+                for union_schemas in (parameter.get(union_key), schema.get(union_key)):
+                    if isinstance(union_schemas, list):
+                        for union_schema in union_schemas:
+                            if isinstance(union_schema, dict) and union_schema.get("type") not in (None, "null"):
+                                typ = union_schema["type"]
+                                break
+                    if typ is not None:
+                        break
+                if typ is not None:
+                    break
+
         if typ in {"integer", "number"}:
             return ToolParameter.ToolParameterType.NUMBER
         elif typ == "boolean":

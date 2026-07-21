@@ -333,6 +333,9 @@ class ApiTool(Tool):
                 elif "anyOf" in option and isinstance(option["anyOf"], list):
                     # Recursive call to handle nested anyOf
                     return self._convert_body_property_any_of(property, value, option["anyOf"], max_recursive - 1)
+                elif "oneOf" in option and isinstance(option["oneOf"], list):
+                    # Recursive call to handle nested oneOf
+                    return self._convert_body_property_any_of(property, value, option["oneOf"], max_recursive - 1)
             except ValueError:
                 continue  # Conversion failed, try next option
         # If no option succeeded, you might want to return the value as is or raise an error
@@ -370,6 +373,8 @@ class ApiTool(Tool):
                     raise ValueError(f"Invalid type {property['type']} for property {property}")
             elif "anyOf" in property and isinstance(property["anyOf"], list):
                 return self._convert_body_property_any_of(property, value, property["anyOf"])
+            elif "oneOf" in property and isinstance(property["oneOf"], list):
+                return self._convert_body_property_any_of(property, value, property["oneOf"])
         except ValueError:
             return value
 

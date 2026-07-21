@@ -184,6 +184,20 @@ def test_get_parameter_value_and_type_conversion_helpers():
     assert tool._convert_body_property_type({"anyOf": [{"type": "integer"}]}, "2") == 2
 
 
+def test_convert_body_property_type_with_oneof():
+    tool = _build_tool()
+    assert tool._convert_body_property_type({"oneOf": [{"type": "integer"}]}, "2") == 2
+    assert tool._convert_body_property_type({"oneOf": [{"type": "string"}]}, 1) == "1"
+    assert tool._convert_body_property_type({"oneOf": [{"type": "boolean"}]}, "true") is True
+    assert tool._convert_body_property_type({"oneOf": [{"type": "null"}]}, "") is None
+    # falls back to the next option when conversion fails
+    assert tool._convert_body_property_type({"oneOf": [{"type": "integer"}, {"type": "string"}]}, "abc") == "abc"
+    # nested oneOf inside oneOf options
+    assert tool._convert_body_property_type({"oneOf": [{"oneOf": [{"type": "integer"}]}]}, "3") == 3
+    # nested oneOf inside anyOf options
+    assert tool._convert_body_property_type({"anyOf": [{"oneOf": [{"type": "integer"}]}]}, "4") == 4
+
+
 def test_do_http_request_builds_arguments_and_handles_invalid_method(monkeypatch):
     openapi = {
         "parameters": [
