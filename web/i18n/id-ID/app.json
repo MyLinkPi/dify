@@ -219,6 +219,7 @@
   "removeOriginal": "Menghapus aplikasi asli",
   "roadmap": "Lihat peta jalan kami",
   "showMyCreatedAppsOnly": "Dibuat oleh saya",
+  "searchByNameOrApiKey": "Cari berdasarkan nama atau kunci API",
   "structOutput.LLMResponse": "Tanggapan LLM",
   "structOutput.configure": "Mengkonfigurasi",
   "structOutput.modelNotSupported": "Model tidak didukung",

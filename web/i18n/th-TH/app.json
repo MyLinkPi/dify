@@ -219,6 +219,7 @@
   "removeOriginal": "ลบโปรเจกต์เดิม",
   "roadmap": "ดูแผนงานของเรา",
   "showMyCreatedAppsOnly": "แสดงเฉพาะแอปที่ฉันสร้าง",
+  "searchByNameOrApiKey": "ค้นหาตามชื่อหรือคีย์ API",
   "structOutput.LLMResponse": "LLM ตอบสนอง",
   "structOutput.configure": "กำหนดค่า",
   "structOutput.modelNotSupported": "โมเดลไม่ได้รับการสนับสนุน",

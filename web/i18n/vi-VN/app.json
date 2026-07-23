@@ -219,6 +219,7 @@
   "removeOriginal": "Xóa ứng dụng gốc",
   "roadmap": "Xem lộ trình của chúng tôi",
   "showMyCreatedAppsOnly": "Chỉ hiển thị ứng dụng do tôi tạo",
+  "searchByNameOrApiKey": "Tìm kiếm theo tên hoặc khóa API",
   "structOutput.LLMResponse": "Phản hồi của LLM",
   "structOutput.configure": "Cấu hình",
   "structOutput.modelNotSupported": "Mô hình không được hỗ trợ",

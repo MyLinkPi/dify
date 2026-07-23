@@ -267,6 +267,7 @@ const List: FC<Props> = ({
               showLeftIcon
               showClearIcon
               wrapperClassName="w-[200px]"
+              placeholder={t('searchByNameOrApiKey', { ns: 'app' })}
               value={keywords}
               onChange={e => handleKeywordsChange(e.target.value)}
               onClear={() => handleKeywordsChange('')}

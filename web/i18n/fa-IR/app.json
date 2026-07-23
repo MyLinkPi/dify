@@ -219,6 +219,7 @@
   "removeOriginal": "حذف برنامه اصلی",
   "roadmap": "نقشه راه ما را ببینید",
   "showMyCreatedAppsOnly": "فقط برنامه‌های ایجاد شده توسط من را نشان بده",
+  "searchByNameOrApiKey": "جستجو بر اساس نام یا کلید API",
   "structOutput.LLMResponse": "پاسخ مدل زبان بزرگ",
   "structOutput.configure": "تنظیمات",
   "structOutput.modelNotSupported": "مدل پشتیبانی نمی شود",

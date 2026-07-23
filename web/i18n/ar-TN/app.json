@@ -219,6 +219,7 @@
   "removeOriginal": "حذف التطبيق الأصلي",
   "roadmap": "شاهد خريطة الطريق",
   "showMyCreatedAppsOnly": "تم إنشاؤه بواسطتي",
+  "searchByNameOrApiKey": "البحث بالاسم أو مفتاح API",
   "structOutput.LLMResponse": "استجابة LLM",
   "structOutput.configure": "تكوين",
   "structOutput.modelNotSupported": "النموذج غير مدعوم",

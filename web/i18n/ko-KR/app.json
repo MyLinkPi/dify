@@ -219,6 +219,7 @@
   "removeOriginal": "원본 앱 제거하기",
   "roadmap": "로드맵 보기",
   "showMyCreatedAppsOnly": "내가 만든 앱만 보기",
+  "searchByNameOrApiKey": "이름 또는 API 키로 검색",
   "structOutput.LLMResponse": "LLM 응답",
   "structOutput.configure": "설정",
   "structOutput.modelNotSupported": "모델이 지원되지 않습니다.",

@@ -219,6 +219,7 @@
   "removeOriginal": "删除原应用",
   "roadmap": "产品路线图",
   "showMyCreatedAppsOnly": "我创建的",
+  "searchByNameOrApiKey": "按名称或 API 密钥搜索",
   "structOutput.LLMResponse": "LLM 的响应",
   "structOutput.configure": "配置",
   "structOutput.modelNotSupported": "模型不支持",

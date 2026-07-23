@@ -20,7 +20,8 @@ from graphon.model_runtime.model_providers.base.large_language_model import Larg
 from libs.datetime_utils import naive_utc_now
 from libs.login import current_user
 from models import Account
-from models.model import App, AppMode, AppModelConfig, IconType, Site
+from models.enums import ApiTokenType
+from models.model import ApiToken, App, AppMode, AppModelConfig, IconType, Site
 from models.tools import ApiToolProvider
 from services.billing_service import BillingService
 from services.enterprise.enterprise_service import EnterpriseService
@@ -60,7 +61,18 @@ class AppService:
 
             name = args["name"][:30]
             escaped_name = escape_like_pattern(name)
-            filters.append(App.name.ilike(f"%{escaped_name}%", escape="\\"))
+            filters.append(
+                sa.or_(
+                    App.name.ilike(f"%{escaped_name}%", escape="\\"),
+                    App.id.in_(
+                        sa.select(ApiToken.app_id).where(
+                            ApiToken.type == ApiTokenType.APP,
+                            ApiToken.tenant_id == tenant_id,
+                            ApiToken.token == name,
+                        )
+                    ),
+                )
+            )
         # Check if tag_ids is not empty to avoid WHERE false condition
         if args.get("tag_ids") and len(args["tag_ids"]) > 0:
             target_ids = TagService.get_target_ids_by_tag_ids("app", tenant_id, args["tag_ids"])

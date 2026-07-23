@@ -219,6 +219,7 @@
   "removeOriginal": "Delete the original app",
   "roadmap": "See our roadmap",
   "showMyCreatedAppsOnly": "Created by me",
+  "searchByNameOrApiKey": "Zoeken op naam of API-sleutel",
   "structOutput.LLMResponse": "LLM Response",
   "structOutput.configure": "Configure",
   "structOutput.modelNotSupported": "Model not supported",

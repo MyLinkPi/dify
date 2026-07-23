@@ -219,6 +219,7 @@
   "removeOriginal": "Elimina l'app originale",
   "roadmap": "Vedi la nostra roadmap",
   "showMyCreatedAppsOnly": "Mostra solo le mie app create",
+  "searchByNameOrApiKey": "Cerca per nome o chiave API",
   "structOutput.LLMResponse": "LLM Risposta",
   "structOutput.configure": "Configura",
   "structOutput.modelNotSupported": "Modello non supportato",

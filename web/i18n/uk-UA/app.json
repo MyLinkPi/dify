@@ -219,6 +219,7 @@
   "removeOriginal": "Видалити початковий додаток",
   "roadmap": "Переглянути наш план розвитку",
   "showMyCreatedAppsOnly": "Показати лише створені мною додатки",
+  "searchByNameOrApiKey": "Пошук за назвою або ключем API",
   "structOutput.LLMResponse": "Відповідь ЛЛМ",
   "structOutput.configure": "Налаштувати",
   "structOutput.modelNotSupported": "Модель не підтримується",

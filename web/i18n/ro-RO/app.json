@@ -219,6 +219,7 @@
   "removeOriginal": "Șterge aplicația originală",
   "roadmap": "Vezi planul nostru de dezvoltare",
   "showMyCreatedAppsOnly": "Afișează doar aplicațiile create de mine",
+  "searchByNameOrApiKey": "Căutare după nume sau cheie API",
   "structOutput.LLMResponse": "Răspuns LLM",
   "structOutput.configure": "Configurează",
   "structOutput.modelNotSupported": "Modelul nu este suportat",

@@ -1,4 +1,5 @@
 from unittest.mock import create_autospec, patch
+from uuid import uuid4
 
 import pytest
 from faker import Faker
@@ -6,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from constants.model_template import default_app_templates
 from models import Account
-from models.model import App, IconType, Site
+from models.model import ApiToken, App, IconType, Site
 from services.account_service import AccountService, TenantService
 from tests.test_containers_integration_tests.helpers import generate_valid_password
 
@@ -321,6 +322,117 @@ class TestAppService:
         }
         my_apps = app_service.get_paginate_apps(account.id, tenant.id, created_by_me_args)
         assert len(my_apps.items) == 1
+
+    def test_get_paginate_apps_with_api_key_filter(
+        self, db_session_with_containers: Session, mock_external_service_dependencies
+    ):
+        """
+        Test paginated app list filtered by an exact API key match.
+        """
+        fake = Faker()
+
+        # Create account and tenant first
+        account = AccountService.create_account(
+            email=fake.email(),
+            name=fake.name(),
+            interface_language="en-US",
+            password=generate_valid_password(fake),
+        )
+        TenantService.create_owner_tenant_if_not_exist(account, name=fake.company())
+        tenant = account.current_tenant
+
+        # Import here to avoid circular dependency
+        from services.app_service import AppService
+
+        app_service = AppService()
+
+        # Create target app and an unrelated app
+        target_app = app_service.create_app(
+            tenant.id,
+            {
+                "name": "API Key Target App",
+                "description": "App to be found by API key",
+                "mode": "chat",
+                "icon_type": "emoji",
+                "icon": "🔑",
+                "icon_background": "#FF6B6B",
+            },
+            account,
+        )
+        app_service.create_app(
+            tenant.id,
+            {
+                "name": "Unrelated App",
+                "description": "App without matching API key",
+                "mode": "chat",
+                "icon_type": "emoji",
+                "icon": "📦",
+                "icon_background": "#4ECDC4",
+            },
+            account,
+        )
+
+        # Create an API token of type "app" for the target app
+        token_value = f"app-{uuid4().hex[:24]}"
+        api_token = ApiToken()
+        api_token.id = str(uuid4())
+        api_token.app_id = target_app.id
+        api_token.tenant_id = tenant.id
+        api_token.type = "app"
+        api_token.token = token_value
+        db_session_with_containers.add(api_token)
+        db_session_with_containers.commit()
+
+        # Full API key returns the target app
+        key_args = {
+            "page": 1,
+            "limit": 10,
+            "mode": "chat",
+            "name": token_value,
+        }
+        filtered_apps = app_service.get_paginate_apps(account.id, tenant.id, key_args)
+        assert len(filtered_apps.items) == 1
+        assert filtered_apps.items[0].id == target_app.id
+
+        # Partial API key does not match (exact match only)
+        partial_key_args = {
+            "page": 1,
+            "limit": 10,
+            "mode": "chat",
+            "name": token_value[:-1],
+        }
+        partial_filtered_apps = app_service.get_paginate_apps(account.id, tenant.id, partial_key_args)
+        assert len(partial_filtered_apps.items) == 0
+
+        # Name fragment still matches by fuzzy search (no regression)
+        name_args = {
+            "page": 1,
+            "limit": 10,
+            "mode": "chat",
+            "name": "Unrelated",
+        }
+        name_filtered_apps = app_service.get_paginate_apps(account.id, tenant.id, name_args)
+        assert len(name_filtered_apps.items) == 1
+        assert name_filtered_apps.items[0].name == "Unrelated App"
+
+        # Token belonging to another tenant does not match
+        other_tenant_token = ApiToken()
+        other_tenant_token.id = str(uuid4())
+        other_tenant_token.app_id = target_app.id
+        other_tenant_token.tenant_id = str(uuid4())
+        other_tenant_token.type = "app"
+        other_tenant_token.token = f"app-{uuid4().hex[:24]}"
+        db_session_with_containers.add(other_tenant_token)
+        db_session_with_containers.commit()
+
+        other_tenant_args = {
+            "page": 1,
+            "limit": 10,
+            "mode": "chat",
+            "name": other_tenant_token.token,
+        }
+        other_tenant_filtered_apps = app_service.get_paginate_apps(account.id, tenant.id, other_tenant_args)
+        assert len(other_tenant_filtered_apps.items) == 0
 
     def test_get_paginate_apps_with_tag_filters(
         self, db_session_with_containers: Session, mock_external_service_dependencies

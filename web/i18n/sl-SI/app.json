@@ -219,6 +219,7 @@
   "removeOriginal": "Izbriši izvirno aplikacijo",
   "roadmap": "Oglejte si naš načrt",
   "showMyCreatedAppsOnly": "Prikaži samo aplikacije, ki sem jih ustvaril",
+  "searchByNameOrApiKey": "Iskanje po imenu ali ključu API",
   "structOutput.LLMResponse": "LLM odziv",
   "structOutput.configure": "Konfiguriraj",
   "structOutput.modelNotSupported": "Model ni podprt",
